@@ -1,0 +1,10 @@
+aiogram==3.4.1
+environs==11.0.0
+redis==5.0.0
+colorama==0.4.6
+nicelog==0.3
+django==4.2.4
+psycopg2-binary==2.9.9
+Pillow==10.0.0
+asgiref==3.7.2
+apscheduler==3.10.4
