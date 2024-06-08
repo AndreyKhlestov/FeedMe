@@ -1,8 +1,12 @@
 from django.contrib import admin
 from django.urls import reverse
+
+from admin_panel.telegram.forms import MailingForm
+from admin_panel.telegram.models import TgUser, Button, Mailing
+
+
 # from django.forms import Textarea
-from .models import TgUser, Button, Mailing
-from .forms import MailingForm
+
 
 
 class BotAdminSite(admin.AdminSite):
@@ -48,7 +52,7 @@ class TgUserAdmin(admin.ModelAdmin):
     # def has_change_permission(self, request, obj=None):
     #     """Запрещаем редактирование объектов"""
     #     return False
-
+    #
     # def has_delete_permission(self, request, obj=None):
     #     """Запрещаем удаление объектов"""
     #     return False
