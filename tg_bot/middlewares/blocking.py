@@ -5,6 +5,9 @@ from aiogram.types import Message
 from tg_bot.db.db_commands import get_and_update_user
 
 
+
+
+
 class UserMiddleware(BaseMiddleware):
     async def __call__(
             self,
