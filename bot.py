@@ -8,6 +8,9 @@ from tg_bot.misc.mailing import start_milling
 from tg_bot.db.db_commands import create_super_user
 
 
+
+
+
 async def set_commands():
     commands = [BotCommand(command="/start", description="Запустить бота")]
     await bot.set_my_commands(commands=commands)
