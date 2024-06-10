@@ -1,7 +1,7 @@
 from asgiref.sync import sync_to_async
+from aiogram.types.user import User
 from django.utils import timezone
 from django.contrib.auth.models import User as Model_User
-from aiogram.types.user import User
 
 from admin_panel.telegram.models import TgUser, Mailing
 

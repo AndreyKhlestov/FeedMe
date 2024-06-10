@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.utils import timezone
 
-from .forms import MailingForm
-from .models import Mailing
+from admin_panel.telegram.forms import MailingForm
+from admin_panel.telegram.models import Mailing
 
 
 @login_required

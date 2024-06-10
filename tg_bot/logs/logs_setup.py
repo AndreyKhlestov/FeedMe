@@ -56,7 +56,7 @@ def get_log_file_handler(formatter: logging.Formatter, level: str, logger_name: 
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
     file_name = os.path.join(folder_name, f"{level}.log")
-    file_handler = RotatingFileHandler(file_name, maxBytes=5 * 1024 * 1024, backupCount=3)
+    file_handler = RotatingFileHandler(file_name, maxBytes=5 * 1024 * 1024, backupCount=3, encoding='utf-8')
     file_handler.setLevel(level_log[level])
     file_handler.setFormatter(formatter)
     file_handler.addFilter(Filter(level_log[level]))

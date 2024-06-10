@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from admin_panel.telegram import views
 
 app_name = 'tg'
 
