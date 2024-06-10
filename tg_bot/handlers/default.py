@@ -2,7 +2,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram import types, Router, F
 from aiogram.filters import Command
 
-from tg_bot.config import bot_logger
+from tg_bot.config import logger
 from tg_bot.loader import dp, bot
 # from tg_bot.db.db_commands import add_user
 from tg_bot.keyboards import inline as inline_kb
@@ -31,7 +31,7 @@ async def main_menu(user: types.User, state: FSMContext):
 
 @default_router.message(Command('start'))
 async def command_start(message: types.Message, state: FSMContext):
-    bot_logger.info(f'Пользователь {message.from_user.full_name} ввел команду /start')
+    logger.info(f'Пользователь {message.from_user.full_name} ввел(a) команду /start')
     await message.answer(text='Добро пожаловать.')
     await main_menu(message.from_user, state)
 

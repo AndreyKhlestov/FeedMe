@@ -3,7 +3,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram.types import BotCommand
 
 from tg_bot.loader import dp, bot
-from tg_bot.config import bot_logger, super_user_name, super_user_pass
+from tg_bot.config import super_user_name, super_user_pass, logger
 from tg_bot.misc.mailing import start_milling
 from tg_bot.db.db_commands import create_super_user
 
@@ -14,7 +14,7 @@ async def set_commands():
 
 
 async def main():
-    bot_logger.info('Запуск бота')
+    logger.info('Запуск бота')
 
     await create_super_user(super_user_name, super_user_pass)
 
