@@ -14,6 +14,17 @@ class CreatedModel(models.Model):
         abstract = True
 
 
+class CreateNameModel(models.Model):
+    """Абстрактная модель. Добавляет наименование."""
+    name = models.CharField(verbose_name='Наименование', max_length=255)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return str(self.name)
+
+
 class TgUser(CreatedModel):
     id = models.BigIntegerField(
         verbose_name='ID пользователя в Telegram', primary_key=True)
@@ -117,3 +128,70 @@ class Button(models.Model):
     class Meta:
         verbose_name = 'Кнопку для рассылки'
         verbose_name_plural = 'Кнопки для рассылки'
+
+
+class TypeFeed(CreateNameModel):
+    """Тип корма."""
+    class Meta:
+        verbose_name = 'Тип корма'
+        verbose_name_plural = 'Типы кормов'
+
+
+class Category(CreateNameModel):
+    """Категория."""
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+
+class UnitMeasure(CreateNameModel):
+    """Единица измерения."""
+    class Meta:
+        verbose_name = 'Единица измерения'
+        verbose_name_plural = 'Единицы измерения'
+
+
+class Feed(models.Model):
+    """Корм."""
+    type_feed = models.ForeignKey(
+        TypeFeed,
+        verbose_name='Тип',
+        related_name='type_feeds',
+        on_delete=models.PROTECT
+    )
+    category = models.ForeignKey(
+        Category,
+        verbose_name='Категория',
+        related_name='categorys',
+        on_delete=models.PROTECT
+
+    )
+    unit_measure = models.ForeignKey(
+        UnitMeasure,
+        verbose_name='Единица измерения',
+        related_name='unit_measures',
+        on_delete=models.PROTECT
+
+    )
+
+    class Meta:
+        verbose_name = 'Корм'
+        verbose_name_plural = 'Корма'
+
+    def __str__(self) -> str:
+        return (
+            f'#{self.type_feed.name} '
+            f'{self.category.name} '
+            f'{self.unit_measure.name}'
+        )
+
+
+class FeedAmount(models.Model):
+    """Корм и его количество."""
+    feed = models.ForeignKey(
+        Feed,
+        verbose_name='Корм',
+        related_name='feeds',
+        on_delete=models.CASCADE
+    )
+    amount = models.IntegerField(verbose_name='Кол-во')
