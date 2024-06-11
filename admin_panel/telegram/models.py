@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 
 
@@ -14,26 +14,59 @@ class CreatedModel(models.Model):
         abstract = True
 
 
+class TgUserCategory(models.Model):
+    """Модель категории для пользователя"""
+    title = models.CharField(
+        verbose_name='Название категории',
+        max_length=64,
+        unique=True,
+    )
+
+    class Meta:
+        verbose_name = 'Категорию'
+        verbose_name_plural = 'Категории'
+
+    def __str__(self) -> str:
+        return self.title
+
+
 class TgUser(CreatedModel):
+    """Модель пользователя"""
     id = models.BigIntegerField(
         verbose_name='ID пользователя в Telegram', primary_key=True)
     username = models.CharField(
-        verbose_name='Имя пользователя',
-        max_length=255,
+        verbose_name='Никнейм',
+        max_length=32,
         null=True,
-        default=None
+        blank=True,
+        default=None,
     )
     full_name = models.CharField(
-        verbose_name='Полное имя пользователя',
+        verbose_name='ФИО',
         max_length=255,
-        null=True,
-        default=None
     )
-    url = models.CharField(
-        verbose_name='Ссылка на пользователя', max_length=255, unique=True)
     phone_number = models.CharField(
         verbose_name='Номер телефона',
         max_length=12,
+        unique=True,
+
+    )
+    passport_photo = models.ImageField(
+        verbose_name='Фото паспорта',
+        upload_to='user_data/',
+        null=True,
+        blank=True,
+        default=None
+    )
+    email = models.EmailField(verbose_name='Почта', unique=True)
+    category = models.ForeignKey(
+        TgUserCategory,
+        verbose_name='Категория пользователя',
+        on_delete=models.PROTECT,
+    )
+    comment = models.CharField(
+        verbose_name='Комментарий',
+        max_length=64,
         null=True,
         blank=True,
         default=None
@@ -49,6 +82,28 @@ class TgUser(CreatedModel):
 
     def __str__(self) -> str:
         return f'#{self.id} {self.full_name}'
+
+
+class TradingPoint(models.Model):
+    address = models.CharField(
+        verbose_name='Адрес точки',
+        max_length=200
+    )
+    title = models.CharField(
+        verbose_name='Название точки',
+        max_length=80
+    )
+    description = models.CharField(
+        verbose_name='Описание',
+        max_length=200
+    )
+
+    class Meta:
+        verbose_name = 'Торговую точку'
+        verbose_name_plural = 'Торговые точки'
+
+    def __str__(self) -> str:
+        return self.title
 
 
 class Mailing(models.Model):
@@ -96,14 +151,6 @@ class Mailing(models.Model):
         return str(self.pk)
 
 
-@receiver(pre_delete, sender=Mailing)
-def delete_related_file(sender, instance, **kwargs):
-    # Проверка на наличие файла и его удаление
-    if instance.file:
-        storage, path = instance.file.storage, instance.file.path
-        storage.delete(path)
-
-
 class Button(models.Model):
     mailing = models.ForeignKey(
         Mailing,
@@ -117,3 +164,33 @@ class Button(models.Model):
     class Meta:
         verbose_name = 'Кнопку для рассылки'
         verbose_name_plural = 'Кнопки для рассылки'
+
+
+@receiver(pre_delete, sender=Mailing)
+def delete_related_file(sender, instance, **kwargs):
+    # Проверка на наличие файла и его удаление
+    if instance.file:
+        storage, path = instance.file.storage, instance.file.path
+        storage.delete(path)
+
+
+# @receiver(pre_save, sender=TgUser)
+# def delete_related_file_edit(sender, instance, **kwargs):
+#     # Проверка на наличие файла и его удаление
+#     if instance.id:
+
+#     if instance.passport_photo:
+#         storage, path = instance.passport_photo.storage, instance.passport_photo.path
+#         storage.delete(path)
+
+@receiver(pre_save, sender=TgUser)
+def delete_related_file_edit(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_instance = TgUser.objects.get(pk=instance.pk)
+    except TgUser.DoesNotExist:
+        return False
+    if (old_instance.passport_photo and
+       old_instance.passport_photo != instance.passport_photo):
+        old_instance.passport_photo.delete(False)

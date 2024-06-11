@@ -2,11 +2,11 @@ from django.contrib import admin
 from django.urls import reverse
 
 from admin_panel.telegram.forms import MailingForm
-from admin_panel.telegram.models import TgUser, Button, Mailing
+from admin_panel.telegram.models import (TgUser, Button, Mailing,
+                                         TgUserCategory, TradingPoint)
 
 
 # from django.forms import Textarea
-
 
 
 class BotAdminSite(admin.AdminSite):
@@ -37,12 +37,22 @@ bot_admin = BotAdminSite()
 
 @admin.register(TgUser, site=bot_admin)
 class TgUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'bot_unblocked', 'is_unblocked')
+    list_display = (
+        'id',
+        'username',
+        'full_name',
+        'phone_number',
+        'email',
+        'category',
+        'comment',
+        'bot_unblocked',
+        'is_unblocked',
+        )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:  # Если редактируется существующий объект
             return self.readonly_fields + (
-                'id', 'full_name', 'url', 'username', 'bot_unblocked')
+                'id', 'username', 'bot_unblocked')
         return self.readonly_fields
 
     # def has_add_permission(self, request):
@@ -57,6 +67,21 @@ class TgUserAdmin(admin.ModelAdmin):
     #     """Запрещаем удаление объектов"""
     #     return False
 
+
+@admin.register(TgUserCategory, site=bot_admin)
+class TgUserCategoryAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+    )
+
+
+@admin.register(TradingPoint, site=bot_admin)
+class TradingPointAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+        'description',
+        'address',
+    )
 
 # class ButtonInline(admin.StackedInline):
 #     model = Button
