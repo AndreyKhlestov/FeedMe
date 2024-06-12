@@ -49,10 +49,17 @@ async def command_start(message: types.Message, state: FSMContext):
 
 
 @default_router.message(StateUser.enter_phone, F.contact)
-async def check_phone(message: types.Message, state: FSMContext):
+async def check_phone(
+        message: types.Message, state: FSMContext):
     """Проверка номера телефона."""
     phone_number = message.contact.phone_number
     if await db.phone_number_exists(phone_number):
+        await db.end_registration(
+            user=message.from_user, phone_number=phone_number)
+        await message.answer(
+            text='Регистрация завершена',
+            reply_markup=types.ReplyKeyboardRemove(),
+        )
         await main_menu(message.from_user, state)
     else:
         await message.answer(

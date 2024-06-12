@@ -38,16 +38,26 @@ def phone_number_exists(phone_number: str) -> bool:
 @sync_to_async
 def get_and_update_user(user: User):
     """Добавление и/или получение пользователя"""
-    tg_user, created = TgUser.objects.get_or_create(id=user.id, url=user.url)
-    if (tg_user.username != user.username or
-            tg_user.full_name != user.full_name or
-            tg_user.bot_unblocked is False):
+    tg_user = TgUser.objects.filter(id=user.id).first()
+    if (tg_user and
+            (tg_user.username != user.username or
+             tg_user.full_name != user.full_name or
+             tg_user.bot_unblocked is False)):
         # эти данные могут со временем меняться
         tg_user.username = user.username or '-'
         tg_user.full_name = user.full_name
         tg_user.bot_unblocked = True
         tg_user.save()
     return tg_user
+
+
+@sync_to_async
+def end_registration(user: User, phone_number: str):
+    """Окончание регистрации - запись в модель id и телефона"""
+    tg_user = TgUser.objects.get(phone_number=phone_number)
+    tg_user.id = user.id
+    tg_user.username = user.username or '-'
+    tg_user.save()
 
 
 @sync_to_async

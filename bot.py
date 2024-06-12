@@ -21,8 +21,8 @@ async def main():
 
     await set_commands()
 
-    # dp.message.outer_middleware(UserMiddleware())
-    # dp.callback_query.outer_middleware(UserMiddleware())
+    dp.message.outer_middleware(UserMiddleware())
+    dp.callback_query.outer_middleware(UserMiddleware())
 
     scheduler = AsyncIOScheduler()
     scheduler.add_job(

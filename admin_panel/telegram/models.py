@@ -1,5 +1,4 @@
-from django.core.validators import (MaxValueValidator,
-                                    MinValueValidator)
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
@@ -172,43 +171,6 @@ class Mailing(models.Model):
         return str(self.pk)
 
 
-class Button(models.Model):
-    mailing = models.ForeignKey(
-        Mailing,
-        verbose_name='Рассылка',
-        related_name='buttons',
-        on_delete=models.CASCADE
-    )
-    name = models.CharField(verbose_name='Текст кнопки', max_length=64)
-    link = models.CharField(verbose_name='Ссылка', max_length=1024)
-
-    class Meta:
-        verbose_name = 'Кнопку для рассылки'
-        verbose_name_plural = 'Кнопки для рассылки'
-
-
-@receiver(pre_delete, sender=Mailing)
-def delete_related_file(sender, instance, **kwargs):
-    # Проверка на наличие файла и его удаление
-    if instance.file:
-        storage, path = instance.file.storage, instance.file.path
-        storage.delete(path)
-
-
-@receiver(pre_save, sender=TgUser)
-def delete_related_file_edit(sender, instance, **kwargs):
-    if not instance.pk:
-        return
-
-    old_instance = TgUser.objects.filter(pk=instance.pk).first()
-
-    if (old_instance and old_instance.passport_photo and
-            old_instance.passport_photo != instance.passport_photo
-    ):
-        old_instance.passport_photo.delete(save=False)
-        # save определяет - будет ли модель сохранена после удаления файла.
-
-
 class TypeFeed(CreateNameModel):
     """Тип корма."""
     class Meta:
@@ -284,3 +246,25 @@ class FeedAmount(models.Model):
         default=0,
         validators=(MinValueValidator(0),)
     )
+
+
+@receiver(pre_delete, sender=Mailing)
+def delete_related_file(sender, instance, **kwargs):
+    # Проверка на наличие файла и его удаление
+    if instance.file:
+        storage, path = instance.file.storage, instance.file.path
+        storage.delete(path)
+
+
+@receiver(pre_save, sender=TgUser)
+def delete_related_file_edit(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+
+    old_instance = TgUser.objects.filter(pk=instance.pk).first()
+
+    if (old_instance and old_instance.passport_photo and
+            old_instance.passport_photo != instance.passport_photo
+    ):
+        old_instance.passport_photo.delete(save=False)
+        # save определяет - будет ли модель сохранена после удаления файла.

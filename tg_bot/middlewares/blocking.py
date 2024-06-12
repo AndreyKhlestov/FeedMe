@@ -14,7 +14,7 @@ class UserMiddleware(BaseMiddleware):
     ) -> Any:
         if event.from_user.is_bot is False:
             user = await get_and_update_user(event.from_user)
-            if user.is_unblocked is False:
+            if user and user.is_unblocked is False:
                 await event.answer(text='Вы заблокированы.', show_alert=True)
                 return
             data['tg_user'] = user

@@ -1,8 +1,6 @@
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from admin_panel.telegram.models import Button
-
 
 BUTTON_BACK_MAIN_MENU = InlineKeyboardButton(
     text='Меню 📋', callback_data='back_main_menu')
@@ -25,14 +23,6 @@ def inline_keyboards(data: list or dict) -> InlineKeyboardBuilder:
         ))
     keyboards.adjust(1)
     return keyboards
-
-
-def buttons_links(buttons: list[Button]):
-    """Клавиатура из кнопок со ссылками"""
-    keyboard = InlineKeyboardBuilder()
-    for button in buttons:
-        keyboard.add(InlineKeyboardButton(text=button.name, url=button.link))
-    return keyboard.as_markup()
 
 
 def main_menu():

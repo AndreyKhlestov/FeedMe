@@ -2,7 +2,8 @@ from django.contrib import admin
 
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
-    Category, Feed, TgUser, Button, Mailing, TypeFeed, UnitMeasure, FeedAmount, TgUserCategory, TradingPoint
+    Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
+    TgUserCategory, TradingPoint,
 )
 
 
@@ -25,10 +26,9 @@ bot_admin = BotAdminSite()
 @admin.register(TgUser, site=bot_admin)
 class TgUserAdmin(admin.ModelAdmin):
     list_display = (
-        'id',
+        'phone_number',
         'username',
         'full_name',
-        'phone_number',
         'email',
         'category',
         'bot_unblocked',
