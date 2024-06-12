@@ -49,7 +49,6 @@ class TgUser(CreatedModel):
         verbose_name='Номер телефона',
         max_length=12,
         unique=True,
-
     )
     passport_photo = models.ImageField(
         verbose_name='Фото паспорта',
@@ -174,30 +173,15 @@ def delete_related_file(sender, instance, **kwargs):
         storage.delete(path)
 
 
-# @receiver(pre_save, sender=TgUser)
-# def delete_related_file_edit(sender, instance, **kwargs):
-#     # Проверка на наличие файла и его удаление
-#     if instance.id:
-
-#     if instance.passport_photo:
-#         storage, path = instance.passport_photo.storage, instance.passport_photo.path
-#         storage.delete(path)
-
 @receiver(pre_save, sender=TgUser)
 def delete_related_file_edit(sender, instance, **kwargs):
     if not instance.pk:
         return
 
     old_instance = TgUser.objects.filter(pk=instance.pk).first()
-    if not old_instance:
-        return
 
-    if (old_instance.passport_photo and
-       old_instance.passport_photo != instance.passport_photo):
+    if (old_instance and old_instance.passport_photo and
+            old_instance.passport_photo != instance.passport_photo
+    ):
         old_instance.passport_photo.delete(save=False)
-        # При удалении файла, связанного с моделью Django,
-        # используется метод delete, в который передается аргумент "save",
-        # (по умолчанию True).
-        # save определяет будет ли модель сохранена после удаления файла.
-        # Т.е. delete(False) или delete(save=False) нужен для того, чтобы
-        # избежать повторное сохранение модели и предотвратить возможные ошибки.
+        # save определяет - будет ли модель сохранена после удаления файла.

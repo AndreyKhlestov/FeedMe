@@ -1,8 +1,8 @@
 from django.contrib import admin
 
 from admin_panel.telegram.forms import MailingForm
-from admin_panel.telegram.models import (TgUser, Mailing,
-                                         TgUserCategory, TradingPoint)
+from admin_panel.telegram.models import (
+    TgUser, Mailing, TgUserCategory, TradingPoint)
 
 
 class BotAdminSite(admin.AdminSite):
@@ -11,7 +11,9 @@ class BotAdminSite(admin.AdminSite):
     index_title = ""
 
     def get_app_list(self, request, app_label=None):
+        # Построение словаря с информацией о приложениях
         app_dict = self._build_app_dict(request)
+        # Сортировка приложений (возможно) по id - в порядке регистрации
         app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
         return app_list
 
@@ -41,18 +43,12 @@ class TgUserAdmin(admin.ModelAdmin):
 
 @admin.register(TgUserCategory, site=bot_admin)
 class TgUserCategoryAdmin(admin.ModelAdmin):
-    list_display = (
-        'title',
-    )
+    list_display = ('title',)
 
 
 @admin.register(TradingPoint, site=bot_admin)
 class TradingPointAdmin(admin.ModelAdmin):
-    list_display = (
-        'title',
-        'description',
-        'address',
-    )
+    list_display = ('title', 'description', 'address',)
 
 
 @admin.register(Mailing, site=bot_admin)
