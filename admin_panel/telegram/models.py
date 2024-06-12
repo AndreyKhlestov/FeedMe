@@ -1,3 +1,5 @@
+from django.core.validators import (MaxValueValidator,
+                                    MinValueValidator)
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -16,7 +18,11 @@ class CreatedModel(models.Model):
 
 class CreateNameModel(models.Model):
     """Абстрактная модель. Добавляет наименование."""
-    name = models.CharField(verbose_name='Наименование', max_length=255)
+    name = models.CharField(
+        verbose_name='Наименование',
+        unique=True,
+        max_length=32
+    )
 
     class Meta:
         abstract = True
@@ -177,6 +183,12 @@ class Feed(models.Model):
     class Meta:
         verbose_name = 'Корм'
         verbose_name_plural = 'Корма'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['type_feed', 'category', 'unit_measure'],
+                name='unique_feed'
+            )
+        ]
 
     def __str__(self) -> str:
         return (
@@ -194,4 +206,8 @@ class FeedAmount(models.Model):
         related_name='feeds',
         on_delete=models.CASCADE
     )
-    amount = models.IntegerField(verbose_name='Кол-во')
+    amount = models.IntegerField(
+        verbose_name='Кол-во',
+        default=0,
+        validators=(MinValueValidator(0), MaxValueValidator(5000000))
+    )
