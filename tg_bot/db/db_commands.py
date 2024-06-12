@@ -24,14 +24,14 @@ def get_all_malling():
 
 
 @sync_to_async()
-def tguser_exists(id):
-    """Проверка наличия польщователя в БД по tg_id."""
-    return TgUser.objects.filter(id=id).exists()
+def tg_user_exists(tg_user_id: int) -> bool:
+    """Проверка наличия пользователя в БД по tg_id."""
+    return TgUser.objects.filter(id=tg_user_id).exists()
 
 
 @sync_to_async()
-def phone_number_exists(phone_number):
-    """Проверка наличия польщователя в БД по номеру тел."""
+def phone_number_exists(phone_number: str) -> bool:
+    """Проверка наличия пользователя в БД по номеру тел."""
     return TgUser.objects.filter(phone_number=phone_number).exists()
 
 
