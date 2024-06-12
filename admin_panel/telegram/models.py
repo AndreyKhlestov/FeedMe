@@ -33,7 +33,11 @@ class TgUserCategory(models.Model):
 class TgUser(CreatedModel):
     """Модель пользователя"""
     id = models.BigIntegerField(
-        verbose_name='ID пользователя в Telegram', primary_key=True)
+        verbose_name='ID пользователя в Telegram',
+        null=True,
+        blank=True,
+        default=None,
+    )
     username = models.CharField(
         verbose_name='Никнейм',
         max_length=32,
@@ -49,6 +53,7 @@ class TgUser(CreatedModel):
         verbose_name='Номер телефона',
         max_length=12,
         unique=True,
+        primary_key=True,
     )
     passport_photo = models.ImageField(
         verbose_name='Фото паспорта',
