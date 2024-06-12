@@ -18,7 +18,7 @@ class TgUserCategory(models.Model):
     """Модель категории для пользователя"""
     title = models.CharField(
         verbose_name='Название категории',
-        max_length=64,
+        max_length=32,
         unique=True,
     )
 
@@ -64,7 +64,7 @@ class TgUser(CreatedModel):
         verbose_name='Категория пользователя',
         on_delete=models.PROTECT,
     )
-    comment = models.CharField(
+    comment = models.TextField(
         verbose_name='Комментарий',
         max_length=64,
         null=True,
@@ -93,7 +93,7 @@ class TradingPoint(models.Model):
         verbose_name='Название точки',
         max_length=80
     )
-    description = models.CharField(
+    description = models.TextField(
         verbose_name='Описание',
         max_length=200
     )
@@ -186,11 +186,18 @@ def delete_related_file(sender, instance, **kwargs):
 @receiver(pre_save, sender=TgUser)
 def delete_related_file_edit(sender, instance, **kwargs):
     if not instance.pk:
-        return False
-    try:
-        old_instance = TgUser.objects.get(pk=instance.pk)
-    except TgUser.DoesNotExist:
-        return False
+        return
+
+    old_instance = TgUser.objects.filter(pk=instance.pk).first()
+    if not old_instance:
+        return
+
     if (old_instance.passport_photo and
        old_instance.passport_photo != instance.passport_photo):
-        old_instance.passport_photo.delete(False)
+        old_instance.passport_photo.delete(save=False)
+        # При удалении файла, связанного с моделью Django,
+        # используется метод delete, в который передается аргумент "save",
+        # (по умолчанию True).
+        # save определяет будет ли модель сохранена после удаления файла.
+        # Т.е. delete(False) или delete(save=False) нужен для того, чтобы
+        # избежать повторное сохранение модели и предотвратить возможные ошибки.
