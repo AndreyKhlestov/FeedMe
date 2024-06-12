@@ -1,3 +1,5 @@
+from django.core.validators import (MaxValueValidator,
+                                    MinValueValidator)
 from django.db import models
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
@@ -14,6 +16,21 @@ class CreatedModel(models.Model):
         abstract = True
 
 
+class CreateNameModel(models.Model):
+    """Абстрактная модель. Добавляет наименование."""
+    name = models.CharField(
+        verbose_name='Наименование',
+        unique=True,
+        max_length=32
+    )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return str(self.name)      
+        
+        
 class TgUserCategory(models.Model):
     """Модель категории для пользователя"""
     title = models.CharField(
@@ -190,3 +207,80 @@ def delete_related_file_edit(sender, instance, **kwargs):
     ):
         old_instance.passport_photo.delete(save=False)
         # save определяет - будет ли модель сохранена после удаления файла.
+
+
+class TypeFeed(CreateNameModel):
+    """Тип корма."""
+    class Meta:
+        verbose_name = 'Тип корма'
+        verbose_name_plural = 'Типы кормов'
+
+
+class Category(CreateNameModel):
+    """Категория."""
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+
+class UnitMeasure(CreateNameModel):
+    """Единица измерения."""
+    class Meta:
+        verbose_name = 'Единица измерения'
+        verbose_name_plural = 'Единицы измерения'
+
+
+class Feed(models.Model):
+    """Корм."""
+    type_feed = models.ForeignKey(
+        TypeFeed,
+        verbose_name='Тип',
+        related_name='type_feeds',
+        on_delete=models.PROTECT
+    )
+    category = models.ForeignKey(
+        Category,
+        verbose_name='Категория',
+        related_name='categorys',
+        on_delete=models.PROTECT
+
+    )
+    unit_measure = models.ForeignKey(
+        UnitMeasure,
+        verbose_name='Единица измерения',
+        related_name='unit_measures',
+        on_delete=models.PROTECT
+
+    )
+
+    class Meta:
+        verbose_name = 'Корм'
+        verbose_name_plural = 'Корма'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['type_feed', 'category', 'unit_measure'],
+                name='unique_feed'
+            )
+        ]
+
+    def __str__(self) -> str:
+        return (
+            f'#{self.type_feed.name} '
+            f'{self.category.name} '
+            f'{self.unit_measure.name}'
+        )
+
+
+class FeedAmount(models.Model):
+    """Корм и его количество."""
+    feed = models.ForeignKey(
+        Feed,
+        verbose_name='Корм',
+        related_name='feeds',
+        on_delete=models.CASCADE
+    )
+    amount = models.IntegerField(
+        verbose_name='Кол-во',
+        default=0,
+        validators=(MinValueValidator(0),)
+    )
