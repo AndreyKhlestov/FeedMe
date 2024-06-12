@@ -268,3 +268,14 @@ def delete_related_file_edit(sender, instance, **kwargs):
     ):
         old_instance.passport_photo.delete(save=False)
         # save определяет - будет ли модель сохранена после удаления файла.
+
+
+class Report(models.Model):
+    name = models.CharField(max_length=100)
+    wet_food = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    dry_food = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    photo = models.ImageField(upload_to='photos/', blank=False, null=False)
+    date = models.DateTimeField(auto_now_add=True)
+    received = models.BooleanField(default=True)

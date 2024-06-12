@@ -3,7 +3,7 @@ from django.contrib import admin
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
     Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
-    TgUserCategory, TradingPoint,
+    TgUserCategory, TradingPoint, Report,
 )
 
 
@@ -33,7 +33,7 @@ class TgUserAdmin(admin.ModelAdmin):
         'category',
         'bot_unblocked',
         'is_unblocked',
-        )
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -99,3 +99,15 @@ class FeedAdmin(admin.ModelAdmin):
 @admin.register(FeedAmount, site=bot_admin)
 class FeedAmountAdmin(admin.ModelAdmin):
     list_display = ('id', 'feed', 'amount',)
+
+
+@admin.register(Report, site=bot_admin)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'wet_food',
+        'dry_food',
+        'photo',
+        'date',
+        'received',
+    )
