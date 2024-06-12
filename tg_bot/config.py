@@ -3,8 +3,6 @@ import sys
 from environs import Env
 from loguru import logger
 
-# from tg_bot.logs.logs_setup import loggers
-
 
 env = Env()
 env.read_env()
@@ -21,38 +19,31 @@ log_format_base = (
     "<fg #006400>{line}</fg #006400>\n"
     "{message}"
 )
-log_format_info = " <blue>{level}</blue>" + log_format_base
-log_format_debug = " <cyan>{level}</cyan>" + log_format_base
-log_format_warning = " <yellow>{level}</yellow>" + log_format_base
-log_format_error = " <red>{level}</red>" + log_format_base
+log_formats = {
+    "INFO": f" <blue>{{level}}</blue>{log_format_base}",
+    "DEBUG": f" <cyan>{{level}}</cyan>{log_format_base}",
+    "WARNING": f" <yellow>{{level}}</yellow>{log_format_base}",
+    "ERROR": f" <red>{{level}}</red>{log_format_base}",
+}
+
+
+def create_filter(level):
+    return lambda record: record["level"].name == level
+
+
 log_format_file = (
     " {level} | {time:YYYY-MM-DD HH:mm:ss} | "
     "{file.name}:{function}:{line}\n{message}"
 )
-logger.add(
-    sys.stdout,
-    format=log_format_info,
-    level="INFO",
-    filter=lambda record: record["level"].name == "INFO",
-)
-logger.add(
-    sys.stdout,
-    format=log_format_debug,
-    level="DEBUG",
-    filter=lambda record: record["level"].name == "DEBUG",
-)
-logger.add(
-    sys.stdout,
-    format=log_format_warning,
-    level="WARNING",
-    filter=lambda record: record["level"].name == "INFO",
-)
-logger.add(
-    sys.stdout,
-    format=log_format_error,
-    level="ERROR",
-    filter=lambda record: record["level"].name == "ERROR",
-)
+
+for level, log_format in log_formats.items():
+    logger.add(
+        sys.stdout,
+        format=log_format,
+        level=level,
+        filter=create_filter(level),
+    )
+
 logger.add(
     "bot.log",
     rotation="500 MB",
