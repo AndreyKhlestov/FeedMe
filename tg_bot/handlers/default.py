@@ -1,6 +1,9 @@
 from aiogram.fsm.context import FSMContext
 from aiogram import types, Router, F
 from aiogram.filters import Command
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, \
+    WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tg_bot.config import bot_logger
 from tg_bot.loader import dp, bot
@@ -40,6 +43,12 @@ async def command_start(message: types.Message, state: FSMContext):
 async def command_help(message: types.Message):
     await message.answer('Для запуска или перезапуска бота напишите /start')
 
+
+@default_router.message(Command('otchet'))
+async def command_otchet(message: types.Message):
+    markup = InlineKeyboardBuilder()
+    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(url=f'http://127.0.0.1:8000/telegram/report/{message.from_user.id}/')))
+    return message.answer('Привет', reply_markup=markup.as_markup())
 
 # изменение состояния
 # await state.set_state(StateUser.tariff_info)

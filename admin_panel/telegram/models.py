@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -117,3 +118,26 @@ class Button(models.Model):
     class Meta:
         verbose_name = 'Кнопку для рассылки'
         verbose_name_plural = 'Кнопки для рассылки'
+
+
+class Point(models.Model):
+    name = models.CharField(verbose_name='Название точки', max_length=150)
+    address = models.CharField(verbose_name='Адрес точки', max_length=255)
+    phone_number = models.CharField(verbose_name='Номер телефона',
+                                    max_length=12)
+
+    class Meta:
+        verbose_name = 'Точку'
+        verbose_name_plural = 'Точки'
+
+
+class Report(models.Model):
+    name = models.CharField(max_length=100)
+    wet_food = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    dry_food = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    photo = models.ImageField(upload_to='photos/', blank=False, null=False)
+    date = models.DateTimeField(auto_now_add=True)
+    received = models.BooleanField(default=True)
+    point = models.ForeignKey(Point, on_delete=models.SET_NULL, null=True)

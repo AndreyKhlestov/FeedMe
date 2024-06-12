@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 
 from admin_panel.telegram.forms import MailingForm
-from admin_panel.telegram.models import TgUser, Button, Mailing
+from admin_panel.telegram.models import TgUser, Button, Mailing, Report
 
 
 # from django.forms import Textarea
@@ -95,3 +95,15 @@ class MailingAdmin(admin.ModelAdmin):
 
     class Meta:
         verbose_name_plural = 'Рассылка'
+
+
+@admin.register(Report, site=bot_admin)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'wet_food',
+        'dry_food',
+        'photo',
+        'date',
+        'received',
+    )
