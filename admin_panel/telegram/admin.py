@@ -1,7 +1,9 @@
 from django.contrib import admin
-from django.urls import reverse
 
 from admin_panel.telegram.forms import MailingForm
+from admin_panel.telegram.models import (
+    Category, Feed, TgUser, Button, Mailing, TypeFeed, UnitMeasure, FeedAmount, TgUserCategory, TradingPoint
+)
 from admin_panel.telegram.models import TgUser, Button, Mailing, Report
 
 
@@ -107,3 +109,28 @@ class ReportAdmin(admin.ModelAdmin):
         'date',
         'received',
     )
+
+
+@admin.register(TypeFeed, site=bot_admin)
+class TypeFeedAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+
+@admin.register(Category, site=bot_admin)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+
+@admin.register(UnitMeasure, site=bot_admin)
+class UnitMeasureAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+
+@admin.register(Feed, site=bot_admin)
+class FeedAdmin(admin.ModelAdmin):
+    list_display = ('id', 'type_feed', 'category', 'unit_measure')
+
+
+@admin.register(FeedAmount, site=bot_admin)
+class FeedAmountAdmin(admin.ModelAdmin):
+    list_display = ('id', 'feed', 'amount',)

@@ -2,11 +2,12 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from admin_panel.telegram.models import Button
-# from tg_bot.keyboards.callback_data import ReferralUrlCallback, DealDataCallback, PaginationDealsProcessing
 
 
-BUTTON_BACK_MAIN_MENU = InlineKeyboardButton(text='Меню 📋', callback_data='back_main_menu')
-BUTTONS_BACK_STEP = InlineKeyboardButton(text='Назад ↩️', callback_data='back_step')
+BUTTON_BACK_MAIN_MENU = InlineKeyboardButton(
+    text='Меню 📋', callback_data='back_main_menu')
+BUTTONS_BACK_STEP = InlineKeyboardButton(
+    text='Назад ↩️', callback_data='back_step')
 
 
 def inline_keyboards(data: list or dict) -> InlineKeyboardBuilder:
@@ -37,7 +38,6 @@ def buttons_links(buttons: list[Button]):
 def main_menu():
     """Главное меню"""
     buttons = {
-        # 'all_referral_urls': 'Реферальные ссылки',
         'lk': 'Личный кабинет'
     }
     keyboard = inline_keyboards(buttons)
@@ -63,24 +63,3 @@ def builder_back_step_and_main_menu():
     keyboard.add(BUTTONS_BACK_STEP)
     keyboard.add(BUTTON_BACK_MAIN_MENU)
     return keyboard.adjust(1)
-
-
-# def club_info():
-#     """Клавиатура для меню бизнес клуба"""
-#     keyboard = InlineKeyboardBuilder()
-#     keyboard.add(
-#         InlineKeyboardButton(
-#             text=_('Сайт'),
-#             url='https://t.me/shamayev_business_law/1371'
-#         )
-#     )
-#     keyboard.attach(builder_back_step_and_main_menu())
-#     return keyboard.adjust(1).as_markup()
-
-# def builder_button_navigation_deals():
-#     """Клавиатура для навигации в сделках"""
-#     keyboard = InlineKeyboardBuilder()
-#     keyboard.button(text=" ⬅️ ", callback_data=PaginationDealsProcessing(after=1))
-#     keyboard.button(text=" ➡️ ", callback_data=PaginationDealsProcessing(after=3))
-#     return keyboard.adjust(2)
-
