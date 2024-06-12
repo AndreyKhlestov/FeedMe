@@ -1,14 +1,9 @@
 from django.contrib import admin
-from django.urls import reverse
 
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
-    Category, Feed, TgUser, Button, Mailing, TypeFeed, UnitMeasure, FeedAmount
+    Category, Feed, TgUser, Button, Mailing, TypeFeed, UnitMeasure, FeedAmount, TgUserCategory, TradingPoint
 )
-
-
-# from django.forms import Textarea
-
 
 
 class BotAdminSite(admin.AdminSite):
@@ -21,16 +16,6 @@ class BotAdminSite(admin.AdminSite):
         app_dict = self._build_app_dict(request)
         # Сортировка приложений (возможно) по id - в порядке регистрации
         app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
-        # new_models = [
-        #     {
-        #         "name": "Статистика",
-        #         "admin_url": reverse('tg:statistics'),
-        #         "view_only": True
-        #     },
-        # ]
-        # for app in app_list:
-        #     app['models'].extend(new_models)
-
         return app_list
 
 
@@ -39,40 +24,32 @@ bot_admin = BotAdminSite()
 
 @admin.register(TgUser, site=bot_admin)
 class TgUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'bot_unblocked', 'is_unblocked')
+    list_display = (
+        'id',
+        'username',
+        'full_name',
+        'phone_number',
+        'email',
+        'category',
+        'bot_unblocked',
+        'is_unblocked',
+        )
 
     def get_readonly_fields(self, request, obj=None):
-        if obj:  # Если редактируется существующий объект
+        if obj:
             return self.readonly_fields + (
-                'id', 'full_name', 'url', 'username', 'bot_unblocked')
+                'id', 'username', 'bot_unblocked')
         return self.readonly_fields
 
-    # def has_add_permission(self, request):
-    #     """Запрещаем добавление новых объектов"""
-    #     return False
-    #
-    # def has_change_permission(self, request, obj=None):
-    #     """Запрещаем редактирование объектов"""
-    #     return False
-    #
-    # def has_delete_permission(self, request, obj=None):
-    #     """Запрещаем удаление объектов"""
-    #     return False
+
+@admin.register(TgUserCategory, site=bot_admin)
+class TgUserCategoryAdmin(admin.ModelAdmin):
+    list_display = ('title',)
 
 
-# class ButtonInline(admin.StackedInline):
-#     model = Button
-#     extra = 0
-
-
-# @admin.register(Mailing)
-# class MailingAdmin(admin.ModelAdmin):
-#     formfield_overrides = {
-#         models.TextField: {'widget': Textarea(attrs={'rows': 15, 'cols': 100})},
-#     }
-#     list_display = ('text', 'mail_date', 'is_send')
-#     readonly_fields = ('is_send',)
-#     inlines = [ButtonInline]
+@admin.register(TradingPoint, site=bot_admin)
+class TradingPointAdmin(admin.ModelAdmin):
+    list_display = ('title', 'description', 'address',)
 
 
 @admin.register(Mailing, site=bot_admin)

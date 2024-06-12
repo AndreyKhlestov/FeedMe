@@ -162,6 +162,9 @@ logs/BotLogger
 /logs/
 /tg_bot/logs/BotLogger/
 /postgres/
-/admin_panel/media
+/admin_panel/media/
+/admin_panel/telegram/migrations/
+/migrations/
+
 
 bot.log
