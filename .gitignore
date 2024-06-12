@@ -165,3 +165,6 @@ logs/BotLogger
 /admin_panel/media/
 /admin_panel/telegram/migrations/
 /migrations/
+
+
+bot.log
