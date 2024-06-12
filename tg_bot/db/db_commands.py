@@ -23,6 +23,18 @@ def get_all_malling():
     return Mailing.objects.filter(is_sent=False, date_malling__lte=now)
 
 
+@sync_to_async()
+def tguser_exists(id):
+    """Проверка наличия польщователя в БД по tg_id."""
+    return TgUser.objects.filter(id=id).exists()
+
+
+@sync_to_async()
+def phone_number_exists(phone_number):
+    """Проверка наличия польщователя в БД по номеру тел."""
+    return TgUser.objects.filter(phone_number=phone_number).exists()
+
+
 @sync_to_async
 def get_and_update_user(user: User):
     """Добавление и/или получение пользователя"""
