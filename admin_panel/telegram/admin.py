@@ -27,7 +27,6 @@ bot_admin = BotAdminSite()
 class TgUserAdmin(admin.ModelAdmin):
     list_display = (
         'phone_number',
-        'username',
         'full_name',
         'email',
         'category',
@@ -40,6 +39,16 @@ class TgUserAdmin(admin.ModelAdmin):
             return self.readonly_fields + (
                 'id', 'username', 'bot_unblocked')
         return self.readonly_fields
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if not obj:
+            # Если создается новый объект, убираем hidden_field из формы
+            hidden_fields = ['id', 'username']
+            for field in hidden_fields:
+                form.base_fields.pop(field, None)
+        return form
+
 
 
 @admin.register(TgUserCategory, site=bot_admin)

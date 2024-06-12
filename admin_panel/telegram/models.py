@@ -27,9 +27,9 @@ class CreateNameModel(models.Model):
         abstract = True
 
     def __str__(self):
-        return str(self.name)      
-        
-        
+        return str(self.name)
+
+
 class TgUserCategory(models.Model):
     """Модель категории для пользователя"""
     title = models.CharField(
@@ -264,7 +264,6 @@ def delete_related_file_edit(sender, instance, **kwargs):
     old_instance = TgUser.objects.filter(pk=instance.pk).first()
 
     if (old_instance and old_instance.passport_photo and
-            old_instance.passport_photo != instance.passport_photo
-    ):
+            old_instance.passport_photo != instance.passport_photo):
         old_instance.passport_photo.delete(save=False)
         # save определяет - будет ли модель сохранена после удаления файла.
