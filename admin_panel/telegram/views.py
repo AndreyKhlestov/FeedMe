@@ -39,7 +39,6 @@ def mailing(request):
     return redirect('admin:telegram_mailing_changelist')
 
 
-
 def report(request, user_id):
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
