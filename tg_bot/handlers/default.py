@@ -16,8 +16,6 @@ from tg_bot.db.db_commands import (
     tguser_exists,
 )
 
-# from ..keyboards.callback_data import ReferralUrlCallback
-
 
 default_router = Router()
 
