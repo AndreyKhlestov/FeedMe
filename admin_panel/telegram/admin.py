@@ -1,12 +1,8 @@
 from django.contrib import admin
-from django.urls import reverse
 
 from admin_panel.telegram.forms import MailingForm
-from admin_panel.telegram.models import (TgUser, Button, Mailing,
+from admin_panel.telegram.models import (TgUser, Mailing,
                                          TgUserCategory, TradingPoint)
-
-
-# from django.forms import Textarea
 
 
 class BotAdminSite(admin.AdminSite):
@@ -15,20 +11,8 @@ class BotAdminSite(admin.AdminSite):
     index_title = ""
 
     def get_app_list(self, request, app_label=None):
-        # Построение словаря с информацией о приложениях
         app_dict = self._build_app_dict(request)
-        # Сортировка приложений (возможно) по id - в порядке регистрации
         app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
-        # new_models = [
-        #     {
-        #         "name": "Статистика",
-        #         "admin_url": reverse('tg:statistics'),
-        #         "view_only": True
-        #     },
-        # ]
-        # for app in app_list:
-        #     app['models'].extend(new_models)
-
         return app_list
 
 
@@ -44,28 +28,15 @@ class TgUserAdmin(admin.ModelAdmin):
         'phone_number',
         'email',
         'category',
-        'comment',
         'bot_unblocked',
         'is_unblocked',
         )
 
     def get_readonly_fields(self, request, obj=None):
-        if obj:  # Если редактируется существующий объект
+        if obj:
             return self.readonly_fields + (
                 'id', 'username', 'bot_unblocked')
         return self.readonly_fields
-
-    # def has_add_permission(self, request):
-    #     """Запрещаем добавление новых объектов"""
-    #     return False
-    #
-    # def has_change_permission(self, request, obj=None):
-    #     """Запрещаем редактирование объектов"""
-    #     return False
-    #
-    # def has_delete_permission(self, request, obj=None):
-    #     """Запрещаем удаление объектов"""
-    #     return False
 
 
 @admin.register(TgUserCategory, site=bot_admin)
@@ -82,20 +53,6 @@ class TradingPointAdmin(admin.ModelAdmin):
         'description',
         'address',
     )
-
-# class ButtonInline(admin.StackedInline):
-#     model = Button
-#     extra = 0
-
-
-# @admin.register(Mailing)
-# class MailingAdmin(admin.ModelAdmin):
-#     formfield_overrides = {
-#         models.TextField: {'widget': Textarea(attrs={'rows': 15, 'cols': 100})},
-#     }
-#     list_display = ('text', 'mail_date', 'is_send')
-#     readonly_fields = ('is_send',)
-#     inlines = [ButtonInline]
 
 
 @admin.register(Mailing, site=bot_admin)
