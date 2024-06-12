@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
-    Category, Feed, TgUser, Button, Mailing, TypeFeed, UnitMeasure
+    Category, Feed, TgUser, Button, Mailing, TypeFeed, UnitMeasure, FeedAmount
 )
 
 
@@ -117,3 +117,8 @@ class UnitMeasureAdmin(admin.ModelAdmin):
 @admin.register(Feed, site=bot_admin)
 class FeedAdmin(admin.ModelAdmin):
     list_display = ('id', 'type_feed', 'category', 'unit_measure')
+
+
+@admin.register(FeedAmount, site=bot_admin)
+class FeedAmountAdmin(admin.ModelAdmin):
+    list_display = ('id', 'feed', 'amount',)

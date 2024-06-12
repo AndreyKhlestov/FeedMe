@@ -209,5 +209,5 @@ class FeedAmount(models.Model):
     amount = models.IntegerField(
         verbose_name='Кол-во',
         default=0,
-        validators=(MinValueValidator(0), MaxValueValidator(5000000))
+        validators=(MinValueValidator(0),)
     )
