@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет о получении товара</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="file"],
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-top: 10px;
+            font-size: 16px;
+            color: #555;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .menu {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .menu-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            margin: 10px;
+            padding: 20px;
+            text-align: center;
+            width: calc(38% - 20px);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .menu-item img {
+            width: 50px;
+            height: 50px;
+        }
+        .menu-item p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #555;
+        }
+        .quantity-controls {
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .quantity-controls button {
+            border: none;
+            background-color: #f0ad4e;
+            color: white;
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+        .quantity-controls button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+        .quantity-controls span {
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        .form-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .form-buttons button {
+            border: none;
+            background-color: #f0ad4e;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .list-group {
+            margin: 20px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+        .list-group-item {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        @media (max-width: 500px) {
+            .container {
+                padding: 10px;
+            }
+            .menu-item {
+                width: 35%;
+                margin: 10px 0;
+            }
+            .quantity-controls {
+                flex-direction: column;
+            }
+            .quantity-controls button {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h2>Отчет о получении товара</h2>
+        <form method="post"  enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="trading_point">Выберите торговую точку:</label>
+                <select id="trading_point" name="trading_point" class="form-control" required>
+                    <option value="">-- Выберите точку --</option>
+                    <!--
+                    <option value="1">Точка 1</option>
+                    <option value="2">Точка 2</option>
+                    <option value="3">Точка 3</option>
+                    <option value="4">Точка 4</option>
+                    <option value="5">Точка 5</option>
+                    -->
+                    {% for point in points %}
+                        <option value="{{ point.id }}">{{ point.title }} ({{  point.address }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-buttons">
+                <button type="button" onclick="document.getElementById('file').multiple = true; document.getElementById('file').click();">Выбрать фото для отчета</button>
+                <input type="file" id="file" style="display: none;" multiple>
+            </div>
+            <div class="menu">
+                <div class="menu-item">
+                    <img src="https://icon666.com/r/_thumb/rcl/rcls4ll64y6q_64.png" alt="wet_cats">
+                    <p>Влажный корм для кошек (кг)</p>
+                    <div class="quantity-controls">
+                        <button type="button" onclick="decreaseQuantity(this)">-</button>
+                        <span>0</span>
+                        <button type="button" onclick="increaseQuantity(this)">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://icon666.com/r/_thumb/4ux/4uxqnlnxkslt_64.png" alt="dry_cats">
+                    <p>Сухой корм для кошек (кг)</p>
+                    <div class="quantity-controls">
+                        <button type="button" onclick="decreaseQuantity(this)">-</button>
+                        <span>0</span>
+                        <button type="button" onclick="increaseQuantity(this)">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://icon666.com/r/_thumb/31f/31fqm9vkew8i_64.png" alt="wet_dogs">
+                    <p>Влажный корм для собак (кг)</p>
+                    <div class="quantity-controls">
+                        <button type="button" onclick="decreaseQuantity(this)">-</button>
+                        <span>0</span>
+                        <button type="button" onclick="increaseQuantity(this)">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://icon666.com/r/_thumb/6aw/6awtrq2of37v_64.png" alt="dry_dogs">
+                    <p>Сухой корм для собак (кг)</p>
+                    <div class="quantity-controls">
+                        <button type="button" onclick="decreaseQuantity(this)">-</button>
+                        <span>0</span>
+                        <button type="button" onclick="increaseQuantity(this)">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-buttons">
+                <button type="submit">Сохранить отчет</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        function increaseQuantity(button) {
+            let span = button.previousElementSibling;
+            let quantity = parseInt(span.innerText);
+            span.innerText = quantity + 1;
+        }
+
+        function decreaseQuantity(button) {
+            let span = button.nextElementSibling;
+            let quantity = parseInt(span.innerText);
+            if (quantity > 0) {
+                span.innerText = quantity - 1;
+            }
+        }
+    </script>
+</body>
+</html>

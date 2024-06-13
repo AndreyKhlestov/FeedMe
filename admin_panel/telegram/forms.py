@@ -1,5 +1,7 @@
 from django import forms
 
+from admin_panel.telegram.models import Report
+
 
 class MailingForm(forms.Form):
     media_type = forms.ChoiceField(
@@ -89,10 +91,9 @@ class MailingForm(forms.Form):
                     'file', 'Максимальный размер файла: 50 мб')
 
 
-class ReportForm(forms.Form):
-    name = forms.CharField(label='Торговая точка', max_length=100)
-    wet_food = forms.IntegerField(label='Влажный корм', initial=0)
-    dry_food = forms.IntegerField(label='Сухой корм', initial=0)
-    photo = forms.ImageField(label='Фото', required=True)
-    received = forms.BooleanField(label='Товар получен', required=True)
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['name', 'wet_cats', 'dry_cats', 'wet_dogs', 'dry_dogs', 'photo']
+
 

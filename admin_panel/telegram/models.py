@@ -271,11 +271,14 @@ def delete_related_file_edit(sender, instance, **kwargs):
 
 
 class Report(models.Model):
-    name = models.CharField(max_length=100)
-    wet_food = models.IntegerField(default=0,
+    point = models.ForeignKey('TradingPoint', on_delete=models.PROTECT, max_length=100, verbose_name='Торговые точки')
+    wet_cats = models.IntegerField(default=0,
                                    validators=[MinValueValidator(0)])
-    dry_food = models.IntegerField(default=0,
+    dry_cats = models.IntegerField(default=0,
                                    validators=[MinValueValidator(0)])
-    photo = models.ImageField(upload_to='photos/', blank=False, null=False)
+    wet_dogs = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    dry_dogs = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    photo = models.FileField(upload_to='photos/', blank=False, null=False)
     date = models.DateTimeField(auto_now_add=True)
-    received = models.BooleanField(default=True)

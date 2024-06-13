@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 
 from admin_panel.telegram.forms import MailingForm, ReportForm
-from admin_panel.telegram.models import Mailing, Report
+from admin_panel.telegram.models import Mailing, Report, TradingPoint
 
 
 @login_required
@@ -40,22 +40,26 @@ def mailing(request):
 
 
 def report(request, user_id):
+    points = TradingPoint.objects.all()
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
         if form.is_valid():
-            name = form.cleaned_data['name']
-            wet_food = form.cleaned_data['wet_food']
-            dry_food = form.cleaned_data['dry_food']
-            received = form.cleaned_data['received']
+            print(form.cleaned_data)
+            point = form.cleaned_data['point']
+            wet_cats = form.cleaned_data['wet_cats']
+            dry_cats = form.cleaned_data['dry_cats']
+            wet_dogs = form.cleaned_data['wet_dogs']
+            dry_dogs = form.cleaned_data['dry_dogs']
             photo = form.cleaned_data['photo']
-
-            Report.objects.create(name=name,
-                                  wet_food=wet_food,
-                                  dry_food=dry_food,
-                                  photo=photo,
-                                  received=received,
+            Report.objects.create(point=point,
+                                  wet_cats=wet_cats,
+                                  dry_cats=dry_cats,
+                                  wet_dogs=wet_dogs,
+                                  dry_dogs=dry_dogs,
+                                  photo=photo
                                   )
             return HttpResponse('Успешно!')
     else:
         form = ReportForm()
-    return render(request, 'income_report.html', {'form': form})
+
+    return render(request, 'index.html', {'form': form, 'points': points})

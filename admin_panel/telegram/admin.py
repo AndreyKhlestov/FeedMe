@@ -3,7 +3,7 @@ from django.contrib import admin
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
     Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
-    TgUserCategory, TradingPoint, Report,
+    TgUserCategory, TradingPoint, Report
 )
 
 
@@ -104,10 +104,11 @@ class FeedAmountAdmin(admin.ModelAdmin):
 @admin.register(Report, site=bot_admin)
 class ReportAdmin(admin.ModelAdmin):
     list_display = (
-        'name',
-        'wet_food',
-        'dry_food',
-        'photo',
+        'point',
+        'wet_cats',
+        'dry_cats',
+        'wet_dogs',
+        'dry_dogs',
         'date',
-        'received',
+        'photo'
     )
