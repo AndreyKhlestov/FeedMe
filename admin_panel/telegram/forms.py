@@ -94,6 +94,6 @@ class MailingForm(forms.Form):
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        fields = ['name', 'wet_cats', 'dry_cats', 'wet_dogs', 'dry_dogs', 'photo']
+        fields = ['point', 'wet_cats', 'dry_cats', 'wet_dogs', 'dry_dogs', 'photo']
 
 
