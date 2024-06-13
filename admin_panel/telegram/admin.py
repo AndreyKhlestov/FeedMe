@@ -3,7 +3,8 @@ from django.contrib import admin
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
     Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
-    TgUserCategory, TradingPoint,
+    TgUserCategory, TradingPoint, TransferReport, ReceivingReport,
+    FinalDeliveryReport
 )
 
 
@@ -27,28 +28,19 @@ bot_admin = BotAdminSite()
 class TgUserAdmin(admin.ModelAdmin):
     list_display = (
         'phone_number',
+        'username',
         'full_name',
         'email',
         'category',
         'bot_unblocked',
         'is_unblocked',
-        )
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return self.readonly_fields + (
                 'id', 'username', 'bot_unblocked')
         return self.readonly_fields
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        if not obj:
-            # Если создается новый объект, убираем hidden_field из формы
-            hidden_fields = ['id', 'username']
-            for field in hidden_fields:
-                form.base_fields.pop(field, None)
-        return form
-
 
 
 @admin.register(TgUserCategory, site=bot_admin)
@@ -108,3 +100,63 @@ class FeedAdmin(admin.ModelAdmin):
 @admin.register(FeedAmount, site=bot_admin)
 class FeedAmountAdmin(admin.ModelAdmin):
     list_display = ('id', 'feed', 'amount',)
+
+
+# @admin.register(TransferReport, site=bot_admin)
+# class TransferReportAdmin(admin.ModelAdmin):
+#     list_display = ('id',
+#                     'user_id',
+#                     'recipient_id',
+#                     'photo',
+#                     'report',
+#                     'comment',)
+
+#     def get_readonly_fields(self, request, obj=None):
+#         if obj:
+#             return self.readonly_fields + (
+#                 'id',
+#                 'user_id',
+#                 'recipient_id',
+#                 'photo',
+#                 'report',)
+#         return self.readonly_fields
+
+
+# @admin.register(ReceivingReport, site=bot_admin)
+# class ReceivingReportAdmin(admin.ModelAdmin):
+#     list_display = ('id',
+#                     'user_id',
+#                     'tradingpoint_id',
+#                     'photo',
+#                     'report',
+#                     'comment',)
+
+#     def get_readonly_fields(self, request, obj=None):
+#         if obj:
+#             return self.readonly_fields + (
+#                 'id',
+#                 'user_id',
+#                 'tradingpoint_id',
+#                 'photo',
+#                 'report',)
+#         return self.readonly_fields
+
+
+# @admin.register(FinalDeliveryReport, site=bot_admin)
+# class FinalDeliveryReportAdmin(admin.ModelAdmin):
+#     list_display = ('id',
+#                     'user_id',
+#                     'address'
+#                     'photo',
+#                     'report',
+#                     'comment',)
+
+#     def get_readonly_fields(self, request, obj=None):
+#         if obj:
+#             return self.readonly_fields + (
+#                 'id',
+#                 'user_id',
+#                 'address'
+#                 'photo',
+#                 'report',)
+#         return self.readonly_fields

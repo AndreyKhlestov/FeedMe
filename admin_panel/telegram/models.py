@@ -267,3 +267,85 @@ def delete_related_file_edit(sender, instance, **kwargs):
             old_instance.passport_photo != instance.passport_photo):
         old_instance.passport_photo.delete(save=False)
         # save определяет - будет ли модель сохранена после удаления файла.
+
+
+class ReportPhoto(models.Model):
+    """Модель для сохранения отчетных фотографий."""
+    report_photo = models.ImageField(
+        verbose_name='Фото отчета',
+        upload_to='report_photos/',
+        null=True,
+        blank=True,
+        default=None,
+
+    )
+    created = models.DateTimeField(
+        verbose_name='Дата создания',
+        auto_now_add=True
+    )
+
+
+class CreateReportModel(models.Model):
+    """Абстрактная модель. Добавляет основные поля для отчетов."""
+    user_id = models.ForeignKey(
+        TgUser,
+        verbose_name='id пользователя',
+        on_delete=models.PROTECT,
+        related_name='user'
+    )
+    photo = models.ForeignKey(
+        ReportPhoto,
+        verbose_name='Фото отчета',
+        on_delete=models.CASCADE,
+        related_name='report_photos'
+    )
+    report = models.ManyToManyField(
+        FeedAmount,
+        verbose_name='Корм',
+        related_name='feed'
+    )
+    comment = models.TextField(
+        verbose_name='Комментарий',
+        max_length=64,
+        null=True,
+        blank=True,
+        default=None
+    )
+    created = models.DateTimeField(
+        verbose_name='Дата создания',
+        auto_now_add=True
+    )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return str(self.pk)
+
+
+class TransferReport(CreateReportModel):
+    """Модель отчета по передаче корма."""
+    recipient_id = models.ForeignKey(
+        TgUser,
+        verbose_name='id получателя',
+        on_delete=models.PROTECT,
+        related_name='recipient'
+    )
+
+
+class ReceivingReport(CreateReportModel):
+    """Модель отчета по получению корма из точки."""
+    tradingpoint_id = models.ForeignKey(
+        TradingPoint,
+        verbose_name='id точки выдачи',
+        on_delete=models.PROTECT,
+        related_name='tradingpoint'
+    )
+
+
+class FinalDeliveryReport(CreateReportModel):
+    """Модель отчета по конечной выдаче корма."""
+    address = models.CharField(
+        verbose_name='Адрес конечной точки выдачи корма',
+        max_length=200
+    )
