@@ -285,24 +285,68 @@ class ReportPhoto(models.Model):
     )
 
 
-class CreateReportModel(models.Model):
-    """Абстрактная модель. Добавляет основные поля для отчетов."""
+# class CreateReportModel(models.Model):
+#     """Абстрактная модель. Добавляет основные поля для отчетов."""
+#     user_id = models.ForeignKey(
+#         TgUser,
+#         verbose_name='id пользователя',
+#         on_delete=models.PROTECT,
+#         related_name='user'
+#     )
+#     photo = models.ForeignKey(
+#         ReportPhoto,
+#         verbose_name='Фото отчета',
+#         on_delete=models.CASCADE,
+#         related_name='report_photos'
+#     )
+#     report = models.ManyToManyField(
+#         FeedAmount,
+#         verbose_name='Корм',
+#         related_name='feeds'
+#     )
+#     comment = models.TextField(
+#         verbose_name='Комментарий',
+#         max_length=64,
+#         null=True,
+#         blank=True,
+#         default=None
+#     )
+#     created = models.DateTimeField(
+#         verbose_name='Дата создания',
+#         auto_now_add=True
+#     )
+
+#     class Meta:
+#         abstract = True
+
+#     def __str__(self):
+#         return str(self.pk)
+
+
+class TransferReport(models.Model):
+    """Модель отчета по передаче корма."""
     user_id = models.ForeignKey(
         TgUser,
         verbose_name='id пользователя',
         on_delete=models.PROTECT,
-        related_name='user'
+        related_name='transfer_user'
+    )
+    recipient_id = models.ForeignKey(
+        TgUser,
+        verbose_name='id получателя',
+        on_delete=models.PROTECT,
+        related_name='recipient'
     )
     photo = models.ForeignKey(
         ReportPhoto,
         verbose_name='Фото отчета',
         on_delete=models.CASCADE,
-        related_name='report_photos'
+        related_name='trans_rep_photos'
     )
     report = models.ManyToManyField(
         FeedAmount,
         verbose_name='Корм',
-        related_name='feed'
+        related_name='trans_feeds'
     )
     comment = models.TextField(
         verbose_name='Комментарий',
@@ -316,36 +360,85 @@ class CreateReportModel(models.Model):
         auto_now_add=True
     )
 
-    class Meta:
-        abstract = True
-
     def __str__(self):
         return str(self.pk)
 
 
-class TransferReport(CreateReportModel):
-    """Модель отчета по передаче корма."""
-    recipient_id = models.ForeignKey(
-        TgUser,
-        verbose_name='id получателя',
-        on_delete=models.PROTECT,
-        related_name='recipient'
-    )
-
-
-class ReceivingReport(CreateReportModel):
+class ReceivingReport(models.Model):
     """Модель отчета по получению корма из точки."""
+    user_id = models.ForeignKey(
+        TgUser,
+        verbose_name='id пользователя',
+        on_delete=models.PROTECT,
+        related_name='receiver_user'
+    )
     tradingpoint_id = models.ForeignKey(
         TradingPoint,
         verbose_name='id точки выдачи',
         on_delete=models.PROTECT,
         related_name='tradingpoint'
     )
+    photo = models.ForeignKey(
+        ReportPhoto,
+        verbose_name='Фото отчета',
+        on_delete=models.CASCADE,
+        related_name='receiv_rep_photos'
+    )
+    report = models.ManyToManyField(
+        FeedAmount,
+        verbose_name='Корм',
+        related_name='receiv_feeds'
+    )
+    comment = models.TextField(
+        verbose_name='Комментарий',
+        max_length=64,
+        null=True,
+        blank=True,
+        default=None
+    )
+    created = models.DateTimeField(
+        verbose_name='Дата создания',
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return str(self.pk)
 
 
-class FinalDeliveryReport(CreateReportModel):
+class FinalDeliveryReport(models.Model):
     """Модель отчета по конечной выдаче корма."""
+    user_id = models.ForeignKey(
+        TgUser,
+        verbose_name='id пользователя',
+        on_delete=models.PROTECT,
+        related_name='delivery_user'
+    )
     address = models.CharField(
         verbose_name='Адрес конечной точки выдачи корма',
         max_length=200
     )
+    photo = models.ForeignKey(
+        ReportPhoto,
+        verbose_name='Фото отчета',
+        on_delete=models.CASCADE,
+        related_name='deliver_rep_photos'
+    )
+    report = models.ManyToManyField(
+        FeedAmount,
+        verbose_name='Корм',
+        related_name='deliver_feeds'
+    )
+    comment = models.TextField(
+        verbose_name='Комментарий',
+        max_length=64,
+        null=True,
+        blank=True,
+        default=None
+    )
+    created = models.DateTimeField(
+        verbose_name='Дата создания',
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return str(self.pk)

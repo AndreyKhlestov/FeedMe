@@ -102,61 +102,61 @@ class FeedAmountAdmin(admin.ModelAdmin):
     list_display = ('id', 'feed', 'amount',)
 
 
-# @admin.register(TransferReport, site=bot_admin)
-# class TransferReportAdmin(admin.ModelAdmin):
-#     list_display = ('id',
-#                     'user_id',
-#                     'recipient_id',
-#                     'photo',
-#                     'report',
-#                     'comment',)
+@admin.register(TransferReport, site=bot_admin)
+class TransferReportAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'user_id',
+                    'recipient_id',
+                    'photo',
+                    # 'report',
+                    'comment',)
 
-#     def get_readonly_fields(self, request, obj=None):
-#         if obj:
-#             return self.readonly_fields + (
-#                 'id',
-#                 'user_id',
-#                 'recipient_id',
-#                 'photo',
-#                 'report',)
-#         return self.readonly_fields
-
-
-# @admin.register(ReceivingReport, site=bot_admin)
-# class ReceivingReportAdmin(admin.ModelAdmin):
-#     list_display = ('id',
-#                     'user_id',
-#                     'tradingpoint_id',
-#                     'photo',
-#                     'report',
-#                     'comment',)
-
-#     def get_readonly_fields(self, request, obj=None):
-#         if obj:
-#             return self.readonly_fields + (
-#                 'id',
-#                 'user_id',
-#                 'tradingpoint_id',
-#                 'photo',
-#                 'report',)
-#         return self.readonly_fields
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + (
+                'id',
+                'user_id',
+                'recipient_id',
+                'photo',
+                'report',)
+        return self.readonly_fields
 
 
-# @admin.register(FinalDeliveryReport, site=bot_admin)
-# class FinalDeliveryReportAdmin(admin.ModelAdmin):
-#     list_display = ('id',
-#                     'user_id',
-#                     'address'
-#                     'photo',
-#                     'report',
-#                     'comment',)
+@admin.register(ReceivingReport, site=bot_admin)
+class ReceivingReportAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'user_id',
+                    'tradingpoint_id',
+                    'photo',
+                    # 'report',
+                    'comment',)
 
-#     def get_readonly_fields(self, request, obj=None):
-#         if obj:
-#             return self.readonly_fields + (
-#                 'id',
-#                 'user_id',
-#                 'address'
-#                 'photo',
-#                 'report',)
-#         return self.readonly_fields
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + (
+                'id',
+                'user_id',
+                'tradingpoint_id',
+                'photo',
+                'report',)
+        return self.readonly_fields
+
+
+@admin.register(FinalDeliveryReport, site=bot_admin)
+class FinalDeliveryReportAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'user_id',
+                    'address',
+                    # 'photo',
+                    # 'report',
+                    'comment',)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + (
+                'id',
+                'user_id',
+                'address'
+                'photo',
+                'report',)
+        return self.readonly_fields
