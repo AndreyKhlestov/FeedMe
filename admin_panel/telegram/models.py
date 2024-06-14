@@ -247,6 +247,149 @@ class FeedAmount(models.Model):
         validators=(MinValueValidator(0),)
     )
 
+    class Meta:
+        verbose_name = 'Данные о корме'
+        verbose_name_plural = 'Данные о кормах'
+
+
+class ReportBase(CreatedModel):
+    """Абстрактная модель отчета."""
+    user = models.ForeignKey(
+        TgUser,
+        verbose_name='Пользователя',
+        on_delete=models.PROTECT,
+        related_name='%(class)s_user'
+    )
+    report = models.ManyToManyField(
+        FeedAmount,
+        verbose_name='Корм',
+        related_name='%(class)s_feeds'
+    )
+    comment = models.TextField(
+        verbose_name='Комментарий',
+        max_length=256,
+        null=True,
+        blank=True,
+        default=None
+    )
+
+    class Meta:
+        abstract = True
+
+
+class TransferReport(ReportBase):
+    """Модель отчета по передаче корма."""
+    recipient = models.ForeignKey(
+        TgUser,
+        verbose_name='Получатель',
+        on_delete=models.PROTECT,
+        related_name='transfer_reports'
+    )
+
+    def __str__(self):
+        return (f'Передача корма №{self.pk} от '
+                f'{self.user} к {self.recipient}')
+
+    class Meta:
+        verbose_name = 'Отчет по передаче корма'
+        verbose_name_plural = 'Отчеты по передаче корма'
+
+
+class ReceivingReport(ReportBase):
+    """Модель отчета по получению корма из точки."""
+    trading_point = models.ForeignKey(
+        TradingPoint,
+        verbose_name='Точка выдачи',
+        on_delete=models.PROTECT,
+        related_name='receiving_reports'
+    )
+
+    def __str__(self):
+        return (f'Получение корма №{self.pk} с точки '
+                f'{self.trading_point} пользователем {self.user}')
+
+    class Meta:
+        verbose_name = 'Отчет по передаче корма'
+        verbose_name_plural = 'Отчеты по передаче корма'
+
+
+class FinalDeliveryReport(ReportBase):
+    """Модель отчета по конечной выдаче корма."""
+    address = models.CharField(
+        verbose_name='Адрес конечной точки выдачи корма',
+        max_length=200,
+    )
+
+    def __str__(self):
+        return (f'Конечная выдача корма №{self.pk} пользователем {self.user}'
+                f'по адресу: {self.address}')
+
+    class Meta:
+        verbose_name = 'Отчет по конечной выдаче корма'
+        verbose_name_plural = 'Отчеты по конечной выдаче корма'
+
+
+# class ReportPhoto(models.Model):
+#     """Модель фотографии отчета."""
+#     photo = models.ImageField(upload_to='report_photos/')
+#     transfer_report = models.ForeignKey(
+#         TransferReport,
+#         on_delete=models.CASCADE,
+#         related_name='photos',
+#         null=True,
+#         blank=True,
+#         default=None,
+#     )
+#     receiving_report = models.ForeignKey(
+#         ReceivingReport,
+#         on_delete=models.CASCADE,
+#         related_name='photos',
+#         null=True,
+#         blank=True,
+#         default=None,
+#     )
+#     final_delivery_report = models.ForeignKey(
+#         FinalDeliveryReport,
+#         on_delete=models.CASCADE,
+#         related_name='photos',
+#         null=True,
+#         blank=True,
+#         default=None,
+#     )
+#
+#     class Meta:
+#         verbose_name = 'Фото к отчету'
+#         verbose_name_plural = 'Фото к отчету'
+
+class TransferReportPhoto(models.Model):
+    """Модель фотографии для отчета по передаче корма."""
+    photo = models.ImageField(upload_to='transfer_report_photos/')
+    report = models.ForeignKey(
+        TransferReport,
+        on_delete=models.CASCADE,
+        related_name='photos'
+    )
+
+
+class ReceivingReportPhoto(models.Model):
+    """Модель фотографии для отчета по получению корма."""
+    photo = models.ImageField(upload_to='receiving_report_photos/')
+    report = models.ForeignKey(
+        ReceivingReport,
+        on_delete=models.CASCADE,
+        related_name='photos'
+    )
+
+
+class FinalDeliveryReportPhoto(models.Model):
+    """Модель фотографии для отчета по конечной выдаче корма."""
+    photo = models.ImageField(upload_to='final_delivery_report_photos/')
+    report = models.ForeignKey(
+        FinalDeliveryReport,
+        on_delete=models.CASCADE,
+        related_name='photos'
+    )
+
 
 @receiver(pre_delete, sender=Mailing)
 def delete_related_file(sender, instance, **kwargs):

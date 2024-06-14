@@ -3,7 +3,9 @@ from django.contrib import admin
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
     Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
-    TgUserCategory, TradingPoint,
+    TgUserCategory, TradingPoint, TransferReport, ReceivingReport,
+    FinalDeliveryReport, TransferReportPhoto, ReceivingReportPhoto,
+    FinalDeliveryReportPhoto,
 )
 
 
@@ -48,7 +50,6 @@ class TgUserAdmin(admin.ModelAdmin):
             for field in hidden_fields:
                 form.base_fields.pop(field, None)
         return form
-
 
 
 @admin.register(TgUserCategory, site=bot_admin)
@@ -108,3 +109,34 @@ class FeedAdmin(admin.ModelAdmin):
 @admin.register(FeedAmount, site=bot_admin)
 class FeedAmountAdmin(admin.ModelAdmin):
     list_display = ('id', 'feed', 'amount',)
+
+
+class TransferReportPhotoInline(admin.TabularInline):
+    model = TransferReportPhoto
+    extra = 1
+
+
+@admin.register(TransferReport, site=bot_admin)
+class TransferReportAdmin(admin.ModelAdmin):
+    inlines = [TransferReportPhotoInline]
+
+
+class ReceivingReportPhotoInline(admin.TabularInline):
+    model = ReceivingReportPhoto
+    extra = 0
+
+
+@admin.register(ReceivingReport, site=bot_admin)
+class ReceivingReportAdmin(admin.ModelAdmin):
+    inlines = [ReceivingReportPhotoInline]
+
+
+class FinalDeliveryReportPhotoInline(admin.TabularInline):
+    model = FinalDeliveryReportPhoto
+    extra = 0
+
+
+@admin.register(FinalDeliveryReport, site=bot_admin)
+class FinalDeliveryReportAdmin(admin.ModelAdmin):
+    inlines = [FinalDeliveryReportPhotoInline]
+
