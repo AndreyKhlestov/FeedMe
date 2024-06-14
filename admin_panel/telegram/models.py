@@ -340,41 +340,29 @@ class FinalDeliveryReport(ReportBase):
         verbose_name_plural = 'Отчеты по конечной выдаче корма'
 
 
-class BaseReportPhoto(models.Model):
-    """Абстрактная модель для фотографий отчетов."""
+class ReportPhoto(models.Model):
+    """Модель для фотографий отчетов."""
     photo = models.ImageField(
         upload_to=get_unique_file_path,
         storage=MediaStorage(),
     )
-
-    class Meta:
-        abstract = True
-
-
-class TransferReportPhoto(BaseReportPhoto):
-    """Модель фотографии для отчета по передаче корма."""
-    report = models.ForeignKey(
-        TransferReport,
-        on_delete=models.CASCADE,
-        related_name='photos'
-    )
-
-
-class ReceivingReportPhoto(BaseReportPhoto):
-    """Модель фотографии для отчета по получению корма."""
-    report = models.ForeignKey(
+    receiving_report = models.ForeignKey(
         ReceivingReport,
         on_delete=models.CASCADE,
-        related_name='photos'
+        related_name='photos',
+        null=True,
     )
-
-
-class FinalDeliveryReportPhoto(BaseReportPhoto):
-    """Модель фотографии для отчета по конечной выдаче корма."""
-    report = models.ForeignKey(
+    transfer_report = models.ForeignKey(
+        TransferReport,
+        on_delete=models.CASCADE,
+        related_name='photos',
+        null=True,
+    )
+    delivery_report = models.ForeignKey(
         FinalDeliveryReport,
         on_delete=models.CASCADE,
-        related_name='photos'
+        related_name='photos',
+        null=True,
     )
 
 

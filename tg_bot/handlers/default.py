@@ -19,7 +19,6 @@ from tg_bot.db import db_commands as db
 default_router = Router()
 
 
-ERROR_MSG_FOR_USER = "Извините, я сломался :( Но меня уже чинят!"
 GET_FEED = "Забрать корм"
 FEEDING = "Кормление"
 TRANSFER = "Передать корм волонтеру"

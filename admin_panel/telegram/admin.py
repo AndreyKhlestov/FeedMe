@@ -3,9 +3,8 @@ from django.contrib import admin
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
     Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
-    TgUserCategory, TradingPoint, TransferReport, ReceivingReport,
-    FinalDeliveryReport, TransferReportPhoto, ReceivingReportPhoto,
-    FinalDeliveryReportPhoto,
+    TgUserCategory, TradingPoint, TransferReport, ReceivingReport, ReportPhoto,
+    FinalDeliveryReport,
 )
 
 
@@ -111,32 +110,22 @@ class FeedAmountAdmin(admin.ModelAdmin):
     list_display = ('id', 'feed', 'amount',)
 
 
-class ReceivingReportPhotoInline(admin.TabularInline):
-    model = ReceivingReportPhoto
+class ReportPhotoInline(admin.TabularInline):
+    model = ReportPhoto
     extra = 0
 
 
 @admin.register(ReceivingReport, site=bot_admin)
 class ReceivingReportAdmin(admin.ModelAdmin):
-    inlines = [ReceivingReportPhotoInline]
-
-
-class TransferReportPhotoInline(admin.TabularInline):
-    model = TransferReportPhoto
-    extra = 1
+    inlines = [ReportPhotoInline]
 
 
 @admin.register(TransferReport, site=bot_admin)
 class TransferReportAdmin(admin.ModelAdmin):
-    inlines = [TransferReportPhotoInline]
-
-
-class FinalDeliveryReportPhotoInline(admin.TabularInline):
-    model = FinalDeliveryReportPhoto
-    extra = 0
+    inlines = [ReportPhotoInline]
 
 
 @admin.register(FinalDeliveryReport, site=bot_admin)
 class FinalDeliveryReportAdmin(admin.ModelAdmin):
-    inlines = [FinalDeliveryReportPhotoInline]
+    inlines = [ReportPhotoInline]
 

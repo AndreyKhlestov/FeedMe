@@ -1,13 +1,12 @@
 import asyncio
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
-    Mailing, TradingPoint, ReceivingReport, ReceivingReportPhoto, TgUser, Feed,
+    Mailing, TradingPoint, ReceivingReport, ReportPhoto, TgUser, Feed,
     FeedAmount,
 )
 
@@ -71,10 +70,9 @@ def create_receiving_report(request, user_id):
         report.report.set(feeds_report)
 
         for file in request.FILES.getlist('images'):
-            ReceivingReportPhoto.objects.create(
-                report=report, photo=file,
+            ReportPhoto.objects.create(
+                receiving_report=report, photo=file,
             )
-    #         return HttpResponse('Успешно!')
 
     context = {
         'points': points,
