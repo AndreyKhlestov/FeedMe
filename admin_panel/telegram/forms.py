@@ -1,10 +1,5 @@
 from django import forms
 
-from admin_panel.telegram.models import (
-    ReceivingReport, ReceivingReportPhoto, TradingPoint
-    # Report, TradingPoint
-)
-
 
 class MailingForm(forms.Form):
     media_type = forms.ChoiceField(
