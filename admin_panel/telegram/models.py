@@ -282,3 +282,5 @@ class Report(models.Model):
                                    validators=[MinValueValidator(0)])
     photo = models.FileField(upload_to='photos/', blank=False, null=False)
     date = models.DateTimeField(auto_now_add=True)
+
+

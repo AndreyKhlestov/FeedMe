@@ -97,3 +97,5 @@ class ReportForm(forms.ModelForm):
         fields = ['point', 'wet_cats', 'dry_cats', 'wet_dogs', 'dry_dogs', 'photo']
 
 
+
+
