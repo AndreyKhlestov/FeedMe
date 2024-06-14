@@ -57,4 +57,4 @@ def report(request, user_id):
     else:
         form = ReportForm()
 
-    return render(request, 'index.html', {'form': form, 'points': points})
+    return render(request, 'take_food.html', {'form': form, 'points': points})
