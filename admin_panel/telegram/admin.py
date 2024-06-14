@@ -3,7 +3,9 @@ from django.contrib import admin
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
     Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
-    TgUserCategory, TradingPoint, Report,
+    TgUserCategory, TradingPoint, TransferReport, ReceivingReport,
+    FinalDeliveryReport, TransferReportPhoto, ReceivingReportPhoto,
+    FinalDeliveryReportPhoto,
 )
 
 
@@ -27,7 +29,6 @@ bot_admin = BotAdminSite()
 class TgUserAdmin(admin.ModelAdmin):
     list_display = (
         'phone_number',
-        'username',
         'full_name',
         'email',
         'category',
@@ -40,6 +41,15 @@ class TgUserAdmin(admin.ModelAdmin):
             return self.readonly_fields + (
                 'id', 'username', 'bot_unblocked')
         return self.readonly_fields
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if not obj:
+            # Если создается новый объект, убираем hidden_field из формы
+            hidden_fields = ['id', 'username']
+            for field in hidden_fields:
+                form.base_fields.pop(field, None)
+        return form
 
 
 @admin.register(TgUserCategory, site=bot_admin)
@@ -101,13 +111,32 @@ class FeedAmountAdmin(admin.ModelAdmin):
     list_display = ('id', 'feed', 'amount',)
 
 
-@admin.register(Report, site=bot_admin)
-class ReportAdmin(admin.ModelAdmin):
-    list_display = (
-        'name',
-        'wet_food',
-        'dry_food',
-        'photo',
-        'date',
-        'received',
-    )
+class TransferReportPhotoInline(admin.TabularInline):
+    model = TransferReportPhoto
+    extra = 1
+
+
+@admin.register(TransferReport, site=bot_admin)
+class TransferReportAdmin(admin.ModelAdmin):
+    inlines = [TransferReportPhotoInline]
+
+
+class ReceivingReportPhotoInline(admin.TabularInline):
+    model = ReceivingReportPhoto
+    extra = 0
+
+
+@admin.register(ReceivingReport, site=bot_admin)
+class ReceivingReportAdmin(admin.ModelAdmin):
+    inlines = [ReceivingReportPhotoInline]
+
+
+class FinalDeliveryReportPhotoInline(admin.TabularInline):
+    model = FinalDeliveryReportPhoto
+    extra = 0
+
+
+@admin.register(FinalDeliveryReport, site=bot_admin)
+class FinalDeliveryReportAdmin(admin.ModelAdmin):
+    inlines = [FinalDeliveryReportPhotoInline]
+

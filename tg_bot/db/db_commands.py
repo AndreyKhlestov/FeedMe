@@ -2,6 +2,7 @@ from asgiref.sync import sync_to_async
 from aiogram.types.user import User
 from django.utils import timezone
 from django.contrib.auth.models import User as Model_User
+from django.core.exceptions import ObjectDoesNotExist
 
 from admin_panel.telegram.models import TgUser, Mailing
 
@@ -30,9 +31,10 @@ def tg_user_exists(tg_user_id: int) -> bool:
 
 
 @sync_to_async()
-def phone_number_exists(phone_number: str) -> bool:
-    """Проверка наличия пользователя в БД по номеру тел."""
-    return TgUser.objects.filter(phone_number=phone_number).exists()
+def get_user_by_number(phone_number: str) -> TgUser:
+    """Получение пользователя по номеру телефона."""
+    user = TgUser.objects.filter(phone_number=phone_number).first()
+    return user if user else None
 
 
 @sync_to_async
