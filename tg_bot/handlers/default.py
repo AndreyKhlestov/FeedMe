@@ -40,14 +40,15 @@ def ensure_plus_prefix(phone_number: str) -> str:
 
 
 async def check_in_base(message, phone_number):
-    if await db.phone_number_exists(phone_number):
+    user = await db.get_user_by_number(phone_number)
+    if user.phone_number:
         await message.answer(
             text=(
                 "Ура, такой пользователь с номером есть в "
                 "базе, ему отправлен запрос на приемку корма"
             )
         )
-        tg_id = await db.get_user_id_by_phone_number(phone_number)
+        tg_id = user.id
         if tg_id:
             await bot.send_message(
                 chat_id=tg_id,
@@ -101,7 +102,8 @@ async def command_start(message: types.Message, state: FSMContext):
 async def check_phone(message: types.Message, state: FSMContext):
     """Проверка номера телефона при первом запуске бота."""
     phone_number = ensure_plus_prefix(message.contact.phone_number)
-    if await db.phone_number_exists(phone_number):
+    user = await db.get_user_by_number(phone_number)
+    if user.phone_number:
         await db.end_registration(
             user=message.from_user, phone_number=phone_number
         )

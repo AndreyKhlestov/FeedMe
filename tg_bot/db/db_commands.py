@@ -31,18 +31,10 @@ def tg_user_exists(tg_user_id: int) -> bool:
 
 
 @sync_to_async()
-def phone_number_exists(phone_number: str) -> bool:
-    """Проверка наличия пользователя в БД по номеру тел."""
-    return TgUser.objects.filter(phone_number=phone_number).exists()
-
-
-@sync_to_async()
-def get_user_id_by_phone_number(phone_number: str) -> int:
-    try:
-        user = TgUser.objects.filter(phone_number=phone_number).first()
-        return user.id if user else None
-    except ObjectDoesNotExist:
-        return None
+def get_user_by_number(phone_number: str) -> TgUser:
+    """Получение пользователя по номеру телефона."""
+    user = TgUser.objects.filter(phone_number=phone_number).first()
+    return user if user else None
 
 
 @sync_to_async
