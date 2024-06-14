@@ -410,3 +410,23 @@ def delete_related_file_edit(sender, instance, **kwargs):
             old_instance.passport_photo != instance.passport_photo):
         old_instance.passport_photo.delete(save=False)
         # save определяет - будет ли модель сохранена после удаления файла.
+
+
+class Report(models.Model):
+    trading_point = models.ForeignKey('TradingPoint', on_delete=models.PROTECT, max_length=100, verbose_name='Торговые точки')
+    wet_cats = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    dry_cats = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    wet_dogs = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    dry_dogs = models.IntegerField(default=0,
+                                   validators=[MinValueValidator(0)])
+    date = models.DateTimeField(auto_now_add=True)
+
+
+class ReportImage(models.Model):
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='report_images/')
+
+
