@@ -142,7 +142,6 @@
 <body>
 
     <div class="container">
-
         <h2>Отчет о получении товара</h2>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -150,62 +149,56 @@
                 <label for="trading_point">Выберите торговую точку:</label>
                 <select id="trading_point" name="trading_point" class="form-control" required>
                     <option value="">-- Выберите точку --</option>
-                    <!--
-                    <option value="1">Точка 1</option>
-                    <option value="2">Точка 2</option>
-                    <option value="3">Точка 3</option>
-                    <option value="4">Точка 4</option>
-                    <option value="5">Точка 5</option>
-                    -->
                     {% for point in points %}
                         <option value="{{ point.id }}">{{ point.title }} ({{  point.address }})</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-buttons">
-                <button type="button" onclick="document.getElementById('file').multiple = true; document.getElementById('file').click();">Выбрать фото для отчета</button>
-                <input type="file" id="file" style="display: none;" multiple>
-            </div>
             <div class="menu">
                 <div class="menu-item">
                     <img src="https://icon666.com/r/_thumb/rcl/rcls4ll64y6q_64.png" alt="wet_cats">
-                    <p>Влажный корм для кошек (кг)</p>
+                    <p>{{ form.wet_cats.label_tag }}</p>
                     <div class="quantity-controls">
                         <button type="button" onclick="decreaseQuantity(this)">-</button>
-                        <span>0</span>
+                        <span>{{ form.wet_cats }}</span>
                         <button type="button" onclick="increaseQuantity(this)">+</button>
                     </div>
                 </div>
 
                 <div class="menu-item">
                     <img src="https://icon666.com/r/_thumb/4ux/4uxqnlnxkslt_64.png" alt="dry_cats">
-                    <p>Сухой корм для кошек (кг)</p>
+                    <p>{{ form.dry_cats.label_tag }}</p>
                     <div class="quantity-controls">
                         <button type="button" onclick="decreaseQuantity(this)">-</button>
-                        <span>0</span>
+                        <span>{{ form.dry_cats }}</span>
                         <button type="button" onclick="increaseQuantity(this)">+</button>
                     </div>
                 </div>
 
                 <div class="menu-item">
                     <img src="https://icon666.com/r/_thumb/31f/31fqm9vkew8i_64.png" alt="wet_dogs">
-                    <p>Влажный корм для собак (кг)</p>
+                    <p>{{ form.wet_dogs.label_tag }}</p>
                     <div class="quantity-controls">
                         <button type="button" onclick="decreaseQuantity(this)">-</button>
-                        <span>0</span>
+                        <span>{{ form.wet_dogs }}</span>
                         <button type="button" onclick="increaseQuantity(this)">+</button>
                     </div>
                 </div>
 
                 <div class="menu-item">
                     <img src="https://icon666.com/r/_thumb/6aw/6awtrq2of37v_64.png" alt="dry_dogs">
-                    <p>Сухой корм для собак (кг)</p>
+                    <p>{{ form.dry_dogs.label_tag }}</p>
+
                     <div class="quantity-controls">
                         <button type="button" onclick="decreaseQuantity(this)">-</button>
-                        <span>0</span>
+                        <span>{{ form.dry_dogs }}</span>
                         <button type="button" onclick="increaseQuantity(this)">+</button>
                     </div>
                 </div>
+            </div>
+            <div class="form-group">
+                <label for="images">Добавить изображения:</label>
+                <input type="file" id="images" name="images" multiple>
             </div>
             <div class="form-buttons">
                 <button type="submit">Сохранить отчет</button>
@@ -229,3 +222,4 @@
     </script>
 </body>
 </html>
+

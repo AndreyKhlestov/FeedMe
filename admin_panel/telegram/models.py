@@ -271,7 +271,7 @@ def delete_related_file_edit(sender, instance, **kwargs):
 
 
 class Report(models.Model):
-    point = models.ForeignKey('TradingPoint', on_delete=models.PROTECT, max_length=100, verbose_name='Торговые точки')
+    trading_point = models.ForeignKey('TradingPoint', on_delete=models.PROTECT, max_length=100, verbose_name='Торговые точки')
     wet_cats = models.IntegerField(default=0,
                                    validators=[MinValueValidator(0)])
     dry_cats = models.IntegerField(default=0,
@@ -280,7 +280,11 @@ class Report(models.Model):
                                    validators=[MinValueValidator(0)])
     dry_dogs = models.IntegerField(default=0,
                                    validators=[MinValueValidator(0)])
-    photo = models.FileField(upload_to='photos/', blank=False, null=False)
     date = models.DateTimeField(auto_now_add=True)
+
+
+class ReportImage(models.Model):
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='report_images/')
 
 

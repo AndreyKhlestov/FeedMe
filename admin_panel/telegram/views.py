@@ -6,7 +6,8 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 
 from admin_panel.telegram.forms import MailingForm, ReportForm
-from admin_panel.telegram.models import Mailing, Report, TradingPoint
+from admin_panel.telegram.models import Mailing, Report, TradingPoint, \
+    ReportImage
 
 
 @login_required
@@ -44,20 +45,14 @@ def report(request, user_id):
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
         if form.is_valid():
-            print(form.cleaned_data)
-            point = form.cleaned_data['point']
-            wet_cats = form.cleaned_data['wet_cats']
-            dry_cats = form.cleaned_data['dry_cats']
-            wet_dogs = form.cleaned_data['wet_dogs']
-            dry_dogs = form.cleaned_data['dry_dogs']
-            photo = form.cleaned_data['photo']
-            Report.objects.create(point=point,
-                                  wet_cats=wet_cats,
-                                  dry_cats=dry_cats,
-                                  wet_dogs=wet_dogs,
-                                  dry_dogs=dry_dogs,
-                                  photo=photo
-                                  )
+            report = form.save(commit=False)
+            report.wet_cats = form.cleaned_data['wet_cats']
+            report.dry_cats = form.cleaned_data['dry_cats']
+            report.wet_dogs = form.cleaned_data['wet_dogs']
+            report.dry_dogs = form.cleaned_data['dry_dogs']
+            report.save()
+            for file in request.FILES.getlist('images'):
+                ReportImage.objects.create(report=report, image=file)
             return HttpResponse('Успешно!')
     else:
         form = ReportForm()
