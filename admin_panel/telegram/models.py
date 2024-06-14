@@ -296,7 +296,7 @@ class TransferReport(ReportBase):
 
 
 class ReceivingReport(ReportBase):
-    """Модель отчета по получению корма из точки."""
+    """Модель отчета по получению корма из точки выдачи."""
     trading_point = models.ForeignKey(
         TradingPoint,
         verbose_name='Точка выдачи',
@@ -328,38 +328,6 @@ class FinalDeliveryReport(ReportBase):
         verbose_name = 'Отчет по конечной выдаче корма'
         verbose_name_plural = 'Отчеты по конечной выдаче корма'
 
-
-# class ReportPhoto(models.Model):
-#     """Модель фотографии отчета."""
-#     photo = models.ImageField(upload_to='report_photos/')
-#     transfer_report = models.ForeignKey(
-#         TransferReport,
-#         on_delete=models.CASCADE,
-#         related_name='photos',
-#         null=True,
-#         blank=True,
-#         default=None,
-#     )
-#     receiving_report = models.ForeignKey(
-#         ReceivingReport,
-#         on_delete=models.CASCADE,
-#         related_name='photos',
-#         null=True,
-#         blank=True,
-#         default=None,
-#     )
-#     final_delivery_report = models.ForeignKey(
-#         FinalDeliveryReport,
-#         on_delete=models.CASCADE,
-#         related_name='photos',
-#         null=True,
-#         blank=True,
-#         default=None,
-#     )
-#
-#     class Meta:
-#         verbose_name = 'Фото к отчету'
-#         verbose_name_plural = 'Фото к отчету'
 
 class TransferReportPhoto(models.Model):
     """Модель фотографии для отчета по передаче корма."""
@@ -412,21 +380,21 @@ def delete_related_file_edit(sender, instance, **kwargs):
         # save определяет - будет ли модель сохранена после удаления файла.
 
 
-class Report(models.Model):
-    trading_point = models.ForeignKey('TradingPoint', on_delete=models.PROTECT, max_length=100, verbose_name='Торговые точки')
-    wet_cats = models.IntegerField(default=0,
-                                   validators=[MinValueValidator(0)])
-    dry_cats = models.IntegerField(default=0,
-                                   validators=[MinValueValidator(0)])
-    wet_dogs = models.IntegerField(default=0,
-                                   validators=[MinValueValidator(0)])
-    dry_dogs = models.IntegerField(default=0,
-                                   validators=[MinValueValidator(0)])
-    date = models.DateTimeField(auto_now_add=True)
-
-
-class ReportImage(models.Model):
-    report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='report_images/')
+# class Report(models.Model):
+#     trading_point = models.ForeignKey('TradingPoint', on_delete=models.PROTECT, max_length=100, verbose_name='Торговые точки')
+#     wet_cats = models.IntegerField(default=0,
+#                                    validators=[MinValueValidator(0)])
+#     dry_cats = models.IntegerField(default=0,
+#                                    validators=[MinValueValidator(0)])
+#     wet_dogs = models.IntegerField(default=0,
+#                                    validators=[MinValueValidator(0)])
+#     dry_dogs = models.IntegerField(default=0,
+#                                    validators=[MinValueValidator(0)])
+#     date = models.DateTimeField(auto_now_add=True)
+#
+#
+# class ReportImage(models.Model):
+#     report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='images')
+#     image = models.ImageField(upload_to='report_images/')
 
 

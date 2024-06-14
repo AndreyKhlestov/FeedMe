@@ -5,7 +5,7 @@ from admin_panel.telegram.models import (
     Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
     TgUserCategory, TradingPoint, TransferReport, ReceivingReport,
     FinalDeliveryReport, TransferReportPhoto, ReceivingReportPhoto,
-    FinalDeliveryReportPhoto, Report, ReportImage
+    FinalDeliveryReportPhoto,
 )
 
 
@@ -109,26 +109,6 @@ class FeedAdmin(admin.ModelAdmin):
 @admin.register(FeedAmount, site=bot_admin)
 class FeedAmountAdmin(admin.ModelAdmin):
     list_display = ('id', 'feed', 'amount',)
-
-
-@admin.register(Report, site=bot_admin)
-class ReportAdmin(admin.ModelAdmin):
-    list_display = (
-        'trading_point',
-        'wet_cats',
-        'dry_cats',
-        'wet_dogs',
-        'dry_dogs',
-        'date',
-    )
-
-
-@admin.register(ReportImage, site=bot_admin)
-class ReportImageAdmin(admin.ModelAdmin):
-    list_display = (
-        'report',
-        'image'
-    )
 
 
 class TransferReportPhotoInline(admin.TabularInline):

@@ -2,12 +2,13 @@ import asyncio
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 
 from admin_panel.telegram.forms import MailingForm, ReportForm
-from admin_panel.telegram.models import Mailing, Report, TradingPoint, \
-    ReportImage
+from admin_panel.telegram.models import (
+    Mailing, TradingPoint, ReceivingReport, ReceivingReportPhoto, TgUser,
+)
 
 
 @login_required
@@ -41,6 +42,7 @@ def mailing(request):
 
 
 def report(request, user_id):
+    tg_user = get_object_or_404(TgUser, id=user_id)
     points = TradingPoint.objects.all()
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
