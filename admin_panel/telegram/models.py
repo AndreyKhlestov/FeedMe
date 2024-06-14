@@ -27,9 +27,9 @@ class CreateNameModel(models.Model):
         abstract = True
 
     def __str__(self):
-        return str(self.name)      
-        
-        
+        return str(self.name)
+
+
 class TgUserCategory(models.Model):
     """Модель категории для пользователя"""
     title = models.CharField(
@@ -247,6 +247,117 @@ class FeedAmount(models.Model):
         validators=(MinValueValidator(0),)
     )
 
+    class Meta:
+        verbose_name = 'Данные о корме'
+        verbose_name_plural = 'Данные о кормах'
+
+
+class ReportBase(CreatedModel):
+    """Абстрактная модель отчета."""
+    user = models.ForeignKey(
+        TgUser,
+        verbose_name='Пользователя',
+        on_delete=models.PROTECT,
+        related_name='%(class)s_user'
+    )
+    report = models.ManyToManyField(
+        FeedAmount,
+        verbose_name='Корм',
+        related_name='%(class)s_feeds'
+    )
+    comment = models.TextField(
+        verbose_name='Комментарий',
+        max_length=256,
+        null=True,
+        blank=True,
+        default=None
+    )
+
+    class Meta:
+        abstract = True
+
+
+class TransferReport(ReportBase):
+    """Модель отчета по передаче корма."""
+    recipient = models.ForeignKey(
+        TgUser,
+        verbose_name='Получатель',
+        on_delete=models.PROTECT,
+        related_name='transfer_reports'
+    )
+
+    def __str__(self):
+        return (f'Передача корма №{self.pk} от '
+                f'{self.user} к {self.recipient}')
+
+    class Meta:
+        verbose_name = 'Отчет по передаче корма'
+        verbose_name_plural = 'Отчеты по передаче корма'
+
+
+class ReceivingReport(ReportBase):
+    """Модель отчета по получению корма из точки выдачи."""
+    trading_point = models.ForeignKey(
+        TradingPoint,
+        verbose_name='Точка выдачи',
+        on_delete=models.PROTECT,
+        related_name='receiving_reports'
+    )
+
+    def __str__(self):
+        return (f'Получение корма №{self.pk} с точки '
+                f'{self.trading_point} пользователем {self.user}')
+
+    class Meta:
+        verbose_name = 'Отчет по передаче корма'
+        verbose_name_plural = 'Отчеты по передаче корма'
+
+
+class FinalDeliveryReport(ReportBase):
+    """Модель отчета по конечной выдаче корма."""
+    address = models.CharField(
+        verbose_name='Адрес конечной точки выдачи корма',
+        max_length=200,
+    )
+
+    def __str__(self):
+        return (f'Конечная выдача корма №{self.pk} пользователем {self.user}'
+                f'по адресу: {self.address}')
+
+    class Meta:
+        verbose_name = 'Отчет по конечной выдаче корма'
+        verbose_name_plural = 'Отчеты по конечной выдаче корма'
+
+
+class TransferReportPhoto(models.Model):
+    """Модель фотографии для отчета по передаче корма."""
+    photo = models.ImageField(upload_to='transfer_report_photos/')
+    report = models.ForeignKey(
+        TransferReport,
+        on_delete=models.CASCADE,
+        related_name='photos'
+    )
+
+
+class ReceivingReportPhoto(models.Model):
+    """Модель фотографии для отчета по получению корма."""
+    photo = models.ImageField(upload_to='receiving_report_photos/')
+    report = models.ForeignKey(
+        ReceivingReport,
+        on_delete=models.CASCADE,
+        related_name='photos'
+    )
+
+
+class FinalDeliveryReportPhoto(models.Model):
+    """Модель фотографии для отчета по конечной выдаче корма."""
+    photo = models.ImageField(upload_to='final_delivery_report_photos/')
+    report = models.ForeignKey(
+        FinalDeliveryReport,
+        on_delete=models.CASCADE,
+        related_name='photos'
+    )
+
 
 @receiver(pre_delete, sender=Mailing)
 def delete_related_file(sender, instance, **kwargs):
@@ -264,7 +375,26 @@ def delete_related_file_edit(sender, instance, **kwargs):
     old_instance = TgUser.objects.filter(pk=instance.pk).first()
 
     if (old_instance and old_instance.passport_photo and
-            old_instance.passport_photo != instance.passport_photo
-    ):
+            old_instance.passport_photo != instance.passport_photo):
         old_instance.passport_photo.delete(save=False)
         # save определяет - будет ли модель сохранена после удаления файла.
+
+
+# class Report(models.Model):
+#     trading_point = models.ForeignKey('TradingPoint', on_delete=models.PROTECT, max_length=100, verbose_name='Торговые точки')
+#     wet_cats = models.IntegerField(default=0,
+#                                    validators=[MinValueValidator(0)])
+#     dry_cats = models.IntegerField(default=0,
+#                                    validators=[MinValueValidator(0)])
+#     wet_dogs = models.IntegerField(default=0,
+#                                    validators=[MinValueValidator(0)])
+#     dry_dogs = models.IntegerField(default=0,
+#                                    validators=[MinValueValidator(0)])
+#     date = models.DateTimeField(auto_now_add=True)
+#
+#
+# class ReportImage(models.Model):
+#     report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='images')
+#     image = models.ImageField(upload_to='report_images/')
+
+

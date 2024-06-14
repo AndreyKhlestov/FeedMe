@@ -1,11 +1,14 @@
 import asyncio
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 
-from admin_panel.telegram.forms import MailingForm
-from admin_panel.telegram.models import Mailing
+from admin_panel.telegram.forms import MailingForm, ReportForm
+from admin_panel.telegram.models import (
+    Mailing, TradingPoint, ReceivingReport, ReceivingReportPhoto, TgUser,
+)
 
 
 @login_required
@@ -36,3 +39,24 @@ def mailing(request):
         )
         messages.success(request, text_success)
     return redirect('admin:telegram_mailing_changelist')
+
+
+def report(request, user_id):
+    tg_user = get_object_or_404(TgUser, id=user_id)
+    points = TradingPoint.objects.all()
+    if request.method == 'POST':
+        form = ReportForm(request.POST, request.FILES)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.wet_cats = form.cleaned_data['wet_cats']
+            report.dry_cats = form.cleaned_data['dry_cats']
+            report.wet_dogs = form.cleaned_data['wet_dogs']
+            report.dry_dogs = form.cleaned_data['dry_dogs']
+            report.save()
+            for file in request.FILES.getlist('images'):
+                ReportImage.objects.create(report=report, image=file)
+            return HttpResponse('Успешно!')
+    else:
+        form = ReportForm()
+
+    return render(request, 'take_food.html', {'form': form, 'points': points})
