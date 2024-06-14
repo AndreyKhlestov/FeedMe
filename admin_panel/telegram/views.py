@@ -7,7 +7,8 @@ from django.utils import timezone
 
 from admin_panel.telegram.forms import MailingForm, ReportForm
 from admin_panel.telegram.models import (
-    Mailing, TradingPoint, ReceivingReport, ReceivingReportPhoto, TgUser,
+    Mailing, TradingPoint, ReceivingReport, ReceivingReportPhoto, TgUser, Feed,
+    FeedAmount,
 )
 
 
@@ -41,22 +42,43 @@ def mailing(request):
     return redirect('admin:telegram_mailing_changelist')
 
 
-def report(request, user_id):
+def create_receiving_report(request, user_id):
     tg_user = get_object_or_404(TgUser, id=user_id)
+    feeds = Feed.objects.all()
     points = TradingPoint.objects.all()
     if request.method == 'POST':
-        form = ReportForm(request.POST, request.FILES)
-        if form.is_valid():
-            report = form.save(commit=False)
-            report.wet_cats = form.cleaned_data['wet_cats']
-            report.dry_cats = form.cleaned_data['dry_cats']
-            report.wet_dogs = form.cleaned_data['wet_dogs']
-            report.dry_dogs = form.cleaned_data['dry_dogs']
-            report.save()
-            for file in request.FILES.getlist('images'):
-                ReportImage.objects.create(report=report, image=file)
-            return HttpResponse('Успешно!')
-    else:
-        form = ReportForm()
+        data = request.POST
+        feeds_report = list()
+        trading_point = get_object_or_404(
+            TradingPoint, id=data.get('trading_point')
+        )
+        for feed in feeds:
+            amount = int(data.get(f'feed_{feed.id}'))
+            if amount > 0:
+                amount_feed = FeedAmount.objects.create(
+                    feed=feed,
+                    amount=amount,
+                )
+                feeds_report.append(amount_feed)
 
-    return render(request, 'take_food.html', {'form': form, 'points': points})
+        comment = data.get('comment')
+
+        report = ReceivingReport.objects.create(
+            user=tg_user,
+            comment=comment,
+            trading_point=trading_point,
+        )
+        report.report.set(feeds_report)
+
+        for file in request.FILES.getlist('images'):
+            ReceivingReportPhoto.objects.create(
+                report=report, photo=file,
+            )
+    #         return HttpResponse('Успешно!')
+
+    context = {
+        'points': points,
+        'feeds': feeds,
+    }
+
+    return render(request, 'take_food.html', context)

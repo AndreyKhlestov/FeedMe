@@ -212,7 +212,14 @@ class Feed(models.Model):
         verbose_name='Единица измерения',
         related_name='unit_measures',
         on_delete=models.PROTECT
-
+    )
+    image_url = models.URLField(
+        verbose_name='Ссылка на иконку',
+        default='https://icon666.com/r/_thumb/rcl/rcls4ll64y6q_64.png'
+    )
+    name = models.CharField(
+        verbose_name='Название на сайте',
+        max_length=32,
     )
 
     class Meta:
@@ -227,9 +234,7 @@ class Feed(models.Model):
 
     def __str__(self) -> str:
         return (
-            f'#{self.type_feed.name} '
-            f'{self.category.name} '
-            f'{self.unit_measure.name}'
+            f'{self.name} ({self.unit_measure.name})'
         )
 
 
@@ -251,12 +256,15 @@ class FeedAmount(models.Model):
         verbose_name = 'Данные о корме'
         verbose_name_plural = 'Данные о кормах'
 
+    def __str__(self) -> str:
+        return f'{self.feed} - {self.amount}'
+
 
 class ReportBase(CreatedModel):
     """Абстрактная модель отчета."""
     user = models.ForeignKey(
         TgUser,
-        verbose_name='Пользователя',
+        verbose_name='Пользователь',
         on_delete=models.PROTECT,
         related_name='%(class)s_user'
     )
@@ -309,8 +317,8 @@ class ReceivingReport(ReportBase):
                 f'{self.trading_point} пользователем {self.user}')
 
     class Meta:
-        verbose_name = 'Отчет по передаче корма'
-        verbose_name_plural = 'Отчеты по передаче корма'
+        verbose_name = 'Отчет по получению корма'
+        verbose_name_plural = 'Отчеты по получению корма'
 
 
 class FinalDeliveryReport(ReportBase):

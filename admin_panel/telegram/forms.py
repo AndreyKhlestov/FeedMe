@@ -95,21 +95,22 @@ class MailingForm(forms.Form):
 
 
 class ReportForm(forms.ModelForm):
-    trading_point = forms.ModelChoiceField(
-        queryset=TradingPoint.objects.all(), label='Торговая точка')
-    images = forms.FileField(
-        widget=forms.ClearableFileInput(
-            attrs={"allow_multiple_selected": True}), required=False)
-    wet_cats = forms.IntegerField(
-        label="Влажный корм для кошек (кг)", min_value=0, required=True)
-    dry_cats = forms.IntegerField(
-        label="Сухой корм для кошек (кг)", min_value=0, required=True)
-    wet_dogs = forms.IntegerField(
-        label="Влажный корм для собак (кг)", min_value=0, required=True)
-    dry_dogs = forms.IntegerField(
-        label="Сухой корм для собак (кг)", min_value=0, required=True)
-
-    class Meta:
-        model = ReceivingReport
-        fields = ['trading_point', 'wet_cats', 'dry_cats', 'wet_dogs',
-                  'dry_dogs']
+    pass
+#     trading_point = forms.ModelChoiceField(
+#         queryset=TradingPoint.objects.all(), label='Торговая точка')
+#     images = forms.FileField(
+#         widget=forms.ClearableFileInput(
+#             attrs={"allow_multiple_selected": True}), required=False)
+#     wet_cats = forms.IntegerField(
+#         label="Влажный корм для кошек (кг)", min_value=0, required=True)
+#     dry_cats = forms.IntegerField(
+#         label="Сухой корм для кошек (кг)", min_value=0, required=True)
+#     wet_dogs = forms.IntegerField(
+#         label="Влажный корм для собак (кг)", min_value=0, required=True)
+#     dry_dogs = forms.IntegerField(
+#         label="Сухой корм для собак (кг)", min_value=0, required=True)
+#
+#     class Meta:
+#         model = ReceivingReport
+#         fields = ['trading_point', 'wet_cats', 'dry_cats', 'wet_dogs',
+#                   'dry_dogs']

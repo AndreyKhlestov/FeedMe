@@ -111,16 +111,6 @@ class FeedAmountAdmin(admin.ModelAdmin):
     list_display = ('id', 'feed', 'amount',)
 
 
-class TransferReportPhotoInline(admin.TabularInline):
-    model = TransferReportPhoto
-    extra = 1
-
-
-@admin.register(TransferReport, site=bot_admin)
-class TransferReportAdmin(admin.ModelAdmin):
-    inlines = [TransferReportPhotoInline]
-
-
 class ReceivingReportPhotoInline(admin.TabularInline):
     model = ReceivingReportPhoto
     extra = 0
@@ -129,6 +119,16 @@ class ReceivingReportPhotoInline(admin.TabularInline):
 @admin.register(ReceivingReport, site=bot_admin)
 class ReceivingReportAdmin(admin.ModelAdmin):
     inlines = [ReceivingReportPhotoInline]
+
+
+class TransferReportPhotoInline(admin.TabularInline):
+    model = TransferReportPhoto
+    extra = 1
+
+
+@admin.register(TransferReport, site=bot_admin)
+class TransferReportAdmin(admin.ModelAdmin):
+    inlines = [TransferReportPhotoInline]
 
 
 class FinalDeliveryReportPhotoInline(admin.TabularInline):
