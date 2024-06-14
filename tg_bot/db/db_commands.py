@@ -33,8 +33,7 @@ def tg_user_exists(tg_user_id: int) -> bool:
 @sync_to_async()
 def get_user_by_number(phone_number: str) -> TgUser:
     """Получение пользователя по номеру телефона."""
-    user = TgUser.objects.filter(phone_number=phone_number).first()
-    return user if user else None
+    return TgUser.objects.filter(phone_number=phone_number).first()
 
 
 @sync_to_async

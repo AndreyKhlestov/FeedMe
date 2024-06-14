@@ -105,7 +105,7 @@ async def check_phone(message: types.Message, state: FSMContext):
     """Проверка номера телефона при первом запуске бота."""
     phone_number = ensure_plus_prefix(message.contact.phone_number)
     user = await db.get_user_by_number(phone_number)
-    if user.phone_number:
+    if user and user.phone_number:
         await db.end_registration(
             user=message.from_user, phone_number=phone_number
         )
