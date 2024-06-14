@@ -145,15 +145,6 @@
         <h2>Отчет о получении товара</h2>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="form-group">
-                <label for="trading_point">Выберите торговую точку:</label>
-                <select id="trading_point" name="trading_point" class="form-control" required>
-                    <option value="">-- Выберите точку --</option>
-                    {% for point in points %}
-                        <option value="{{ point.id }}">{{ point.title }} ({{  point.address }})</option>
-                    {% endfor %}
-                </select>
-            </div>
             <div class="menu">
                 <div class="menu-item">
                     <img src="https://icon666.com/r/_thumb/rcl/rcls4ll64y6q_64.png" alt="wet_cats">

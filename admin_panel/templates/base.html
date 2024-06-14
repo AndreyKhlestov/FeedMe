@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -142,6 +142,7 @@
 <body>
 
     <div class="container">
+
         <h2>Отчет о получении товара</h2>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -149,62 +150,65 @@
                 <label for="trading_point">Выберите торговую точку:</label>
                 <select id="trading_point" name="trading_point" class="form-control" required>
                     <option value="">-- Выберите точку --</option>
+                    <!--
+                    <option value="1">Точка 1</option>
+                    <option value="2">Точка 2</option>
+                    <option value="3">Точка 3</option>
+                    <option value="4">Точка 4</option>
+                    <option value="5">Точка 5</option>
+                    -->
                     {% for point in points %}
                         <option value="{{ point.id }}">{{ point.title }} ({{  point.address }})</option>
                     {% endfor %}
                 </select>
             </div>
+            <div class="form-buttons">
+                <button type="button" onclick="document.getElementById('file').multiple = true; document.getElementById('file').click();">Выбрать фото для отчета</button>
+                <input type="file" id="file" style="display: none;" multiple>
+            </div>
             <div class="menu">
                 <div class="menu-item">
                     <img src="https://icon666.com/r/_thumb/rcl/rcls4ll64y6q_64.png" alt="wet_cats">
-                    <p>{{ form.wet_cats.label_tag }}</p>
+                    <p>Влажный корм для кошек (кг)</p>
                     <div class="quantity-controls">
-                        <button type="button" onclick="decreaseQuantity('wet_cats')">-</button>
-                        <span id="wet_cats_display">0</span>
-                        <button type="button" onclick="increaseQuantity('wet_cats')">+</button>
+                        <button type="button" onclick="decreaseQuantity(this)">-</button>
+                        <span>0</span>
+                        <button type="button" onclick="increaseQuantity(this)">+</button>
                     </div>
-                    <input type="hidden" id="wet_cats_input" name="wet_cats" value="0">
                 </div>
+
                 <div class="menu-item">
                     <img src="https://icon666.com/r/_thumb/4ux/4uxqnlnxkslt_64.png" alt="dry_cats">
-                    <p>{{ form.dry_cats.label_tag }}</p>
+                    <p>Сухой корм для кошек (кг)</p>
                     <div class="quantity-controls">
-                        <button type="button" onclick="decreaseQuantity('dry_cats')">-</button>
-                        <span id="dry_cats_display">0</span>
-                        <button type="button" onclick="increaseQuantity('dry_cats')">+</button>
+                        <button type="button" onclick="decreaseQuantity(this)">-</button>
+                        <span>0</span>
+                        <button type="button" onclick="increaseQuantity(this)">+</button>
                     </div>
-                    <input type="hidden" id="dry_cats_input" name="dry_cats" value="0">
                 </div>
 
                 <div class="menu-item">
                     <img src="https://icon666.com/r/_thumb/31f/31fqm9vkew8i_64.png" alt="wet_dogs">
-                    <p>{{ form.wet_dogs.label_tag }}</p>
+                    <p>Влажный корм для собак (кг)</p>
                     <div class="quantity-controls">
-                        <button type="button" onclick="decreaseQuantity('wet_dogs')">-</button>
-                        <span id="wet_dogs_display">0</span>
-                        <button type="button" onclick="increaseQuantity('wet_dogs')">+</button>
+                        <button type="button" onclick="decreaseQuantity(this)">-</button>
+                        <span>0</span>
+                        <button type="button" onclick="increaseQuantity(this)">+</button>
                     </div>
-                    <input type="hidden" id="wet_dogs_input" name="wet_dogs" value="0">
                 </div>
 
                 <div class="menu-item">
                     <img src="https://icon666.com/r/_thumb/6aw/6awtrq2of37v_64.png" alt="dry_dogs">
-                    <p>{{ form.dry_dogs.label_tag }}</p>
+                    <p>Сухой корм для собак (кг)</p>
                     <div class="quantity-controls">
-                        <button type="button" onclick="decreaseQuantity('dry_dogs')">-</button>
-                        <span id="dry_dogs_display">0</span>
-                        <button type="button" onclick="increaseQuantity('dry_dogs')">+</button>
+                        <button type="button" onclick="decreaseQuantity(this)">-</button>
+                        <span>0</span>
+                        <button type="button" onclick="increaseQuantity(this)">+</button>
                     </div>
-                    <input type="hidden" id="dry_dogs_input" name="dry_dogs" value="0">
-
                 </div>
             </div>
             <div class="form-group">
-                <label for="images">Добавить изображения:</label>
-                <input type="file" id="images" name="images" multiple>
-            </div>
-            <div class="form-group">
-                <label for="name">Добавить комментарий:</label>
+                <label for="name">Комментарий</label>
                 <input type="text" id="name" name="name" required>
             </div>
             <div class="form-buttons">
@@ -212,25 +216,20 @@
             </div>
         </form>
     </div>
-<script>
-    function increaseQuantity(category) {
-        var displaySpan = document.getElementById(category + '_display');
-        var hiddenInput = document.getElementById(category + '_input');
-        var currentValue = parseInt(displaySpan.textContent);
-        displaySpan.textContent = currentValue + 1;
-        hiddenInput.value = currentValue + 1;
-    }
-
-    function decreaseQuantity(category) {
-        var displaySpan = document.getElementById(category + '_display');
-        var hiddenInput = document.getElementById(category + '_input');
-        var currentValue = parseInt(displaySpan.textContent);
-        if (currentValue > 0) {
-            displaySpan.textContent = currentValue - 1;
-            hiddenInput.value = currentValue - 1;
+    <script>
+        function increaseQuantity(button) {
+            let span = button.previousElementSibling;
+            let quantity = parseInt(span.innerText);
+            span.innerText = quantity + 1;
         }
-    }
-</script>
 
+        function decreaseQuantity(button) {
+            let span = button.nextElementSibling;
+            let quantity = parseInt(span.innerText);
+            if (quantity > 0) {
+                span.innerText = quantity - 1;
+            }
+        }
+    </script>
 </body>
 </html>
