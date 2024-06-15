@@ -6,7 +6,7 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from tg_bot.config import logger
+from tg_bot.config import logger, site_url
 from tg_bot.loader import bot
 from tg_bot.states.all_states import StateUser
 
@@ -24,6 +24,7 @@ FEEDING = "Кормление"
 TRANSFER = "Передать корм волонтеру"
 NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
+PERSONAL_ACCOUNT = "Личный кабинет"
 
 
 def is_valid_phone_number(phone_number: str) -> bool:
@@ -208,8 +209,8 @@ async def accept_feed(callback_query: types.CallbackQuery):
 
 @default_router.message(Command('report'))
 async def command_otchet(message: types.Message):
+    """Переход на страницу отчета."""
     markup = InlineKeyboardBuilder()
-    from tg_bot.config import site_url
     url = (
         f'https://{site_url}/telegram/receiving_report/{message.from_user.id}/'
     )
@@ -221,3 +222,8 @@ async def command_otchet(message: types.Message):
     )
     return message.answer('Привет', reply_markup=markup.as_markup())
 
+
+@default_router.message(F.text == PERSONAL_ACCOUNT)
+async def personal_account(message: types.Message):
+    """Личный кабинет."""
+    await message.answer("Здесь будет баланс волонтера")
