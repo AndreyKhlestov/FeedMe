@@ -26,6 +26,8 @@ NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
 URL = f'https://{site_url}' + '/telegram/{slug}/{call.from_user.id}/'
 PERSONAL_ACCOUNT = "personal_account"
+STATISTIC = "get_statistic"
+BALANCE = "feed_on_balance"
 
 
 def is_valid_phone_number(phone_number: str) -> bool:
@@ -250,13 +252,39 @@ async def command_otchet(message: types.Message):
     return message.answer('Привет', reply_markup=markup.as_markup())
 
 
+# @default_router.callback_query(F.data == PERSONAL_ACCOUNT)
+# async def personal_account(call: types.CallbackQuery):
+#     """Личный кабинет."""
+#     await call.message.delete()
+#     await call.bot.send_message(
+#         chat_id=call.from_user.id,
+#         text="Здесь будет личный кабинет.",
+#         reply_markup=inline_kb.back_main_menu(),
+#     )
+
+
 @default_router.callback_query(F.data == PERSONAL_ACCOUNT)
 async def personal_account(call: types.CallbackQuery):
-    """Личный кабинет."""
+    """Личный кабинет"""
     await call.message.delete()
-    await call.bot.send_message(
+    await bot.send_message(
         chat_id=call.from_user.id,
-        text="Здесь будет личный кабинет.",
-        reply_markup=inline_kb.back_main_menu(),
+        text="Личный кабинет",
+        reply_markup=inline_kb.personal_account(),
     )
 
+
+@default_router.callback_query(F.data == STATISTIC)
+async def get_statistic(call: types.CallbackQuery):
+    """Статистика"""
+    await call.message.delete()
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(inline_kb.BUTTON_BACK_MAIN_MENU)
+    keyboard.row(inline_kb.BUTTONS_BACK_STEP)
+    await bot.send_message(
+        chat_id=call.from_user.id,
+        text="Статистика:",
+        reply_markup=keyboard.as_markup()
+        # reply_markup=inline_kb.back_main_menu(),
+        # reply_markup=inline_kb.back_step(),
+    )
