@@ -165,6 +165,28 @@ async def transfer_from_volunteer_to_volunteer(
     )
 
 
+@default_router.message(Command('check'))
+async def feeding(message: types.Message):
+    """Проверка номера телефона."""
+    markup = InlineKeyboardBuilder()
+    markup.add(InlineKeyboardButton(text='check', web_app=WebAppInfo(
+        url=URL.format(
+            slug='check_phone_number',
+            message=message,))))
+    return message.answer('check', reply_markup=markup.as_markup())
+
+
+@default_router.message(Command('transfer'))
+async def feeding(message: types.Message):
+    """Передача корма от волонтера к волонтеру."""
+    markup = InlineKeyboardBuilder()
+    markup.add(InlineKeyboardButton(text='transfer', web_app=WebAppInfo(
+        url=URL.format(
+            slug='transfer_report',
+            message=message,))))
+    return message.answer('transfer', reply_markup=markup.as_markup())
+
+
 @default_router.message(StateUser.send_phone, F.contact)
 async def check_contact_in_base(message: types.Message):
     """Проверка волонтера на наличие в базе, если слать контакт."""
