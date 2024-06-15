@@ -1,5 +1,7 @@
 from django import forms
 
+from admin_panel.telegram.models import FeedAmount, ReportPhoto
+
 
 class MailingForm(forms.Form):
     media_type = forms.ChoiceField(
@@ -88,3 +90,18 @@ class MailingForm(forms.Form):
                 self.add_error(
                     'file', 'Максимальный размер файла: 50 мб')
 
+
+class FeedAmountForm(forms.ModelForm):
+    class Meta:
+        model = FeedAmount
+        exclude = [
+            'receiving_report', 'transfer_report', 'delivery_report', 'tg_user'
+        ]
+
+
+class ReportPhotoForm(forms.ModelForm):
+    class Meta:
+        model = ReportPhoto
+        exclude = [
+            'receiving_report', 'transfer_report', 'delivery_report',
+        ]

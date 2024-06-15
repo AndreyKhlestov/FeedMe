@@ -241,28 +241,6 @@ class Feed(models.Model):
         )
 
 
-class FeedAmount(models.Model):
-    """Корм и его количество."""
-    feed = models.ForeignKey(
-        Feed,
-        verbose_name='Корм',
-        related_name='feeds',
-        on_delete=models.CASCADE
-    )
-    amount = models.IntegerField(
-        verbose_name='Кол-во',
-        default=0,
-        validators=(MinValueValidator(0),)
-    )
-
-    class Meta:
-        verbose_name = 'Данные о корме'
-        verbose_name_plural = 'Данные о кормах'
-
-    def __str__(self) -> str:
-        return f'{self.feed} - {self.amount}'
-
-
 class ReportBase(CreatedModel):
     """Абстрактная модель отчета."""
     user = models.ForeignKey(
@@ -270,11 +248,6 @@ class ReportBase(CreatedModel):
         verbose_name='Пользователь',
         on_delete=models.PROTECT,
         related_name='%(class)s_user'
-    )
-    report = models.ManyToManyField(
-        FeedAmount,
-        verbose_name='Корм',
-        related_name='%(class)s_feeds'
     )
     comment = models.TextField(
         verbose_name='Комментарий',
@@ -364,6 +337,52 @@ class ReportPhoto(models.Model):
         related_name='photos',
         null=True,
     )
+
+
+class FeedAmount(models.Model):
+    """Корм и его количество."""
+    feed = models.ForeignKey(
+        Feed,
+        verbose_name='Корм',
+        related_name='feeds',
+        on_delete=models.CASCADE
+    )
+    amount = models.IntegerField(
+        verbose_name='Кол-во',
+        default=0,
+        validators=(MinValueValidator(0),)
+    )
+    receiving_report = models.ForeignKey(
+        ReceivingReport,
+        on_delete=models.CASCADE,
+        related_name='feeds_amount',
+        null=True,
+    )
+    transfer_report = models.ForeignKey(
+        TransferReport,
+        on_delete=models.CASCADE,
+        related_name='feeds_amount',
+        null=True,
+    )
+    delivery_report = models.ForeignKey(
+        FinalDeliveryReport,
+        on_delete=models.CASCADE,
+        related_name='feeds_amount',
+        null=True,
+    )
+    tg_user = models.ForeignKey(
+        TgUser,
+        on_delete=models.CASCADE,
+        related_name='feeds_amount',
+        null=True,
+    )
+
+    class Meta:
+        verbose_name = 'Данные о корме'
+        verbose_name_plural = 'Данные о кормах'
+
+    def __str__(self) -> str:
+        return f'{self.feed} - {self.amount}'
 
 
 @receiver(pre_delete, sender=Mailing)

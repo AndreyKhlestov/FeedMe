@@ -42,32 +42,30 @@ def mailing(request):
 
 
 def create_receiving_report(request, user_id):
+    """Создание отчета по получению корма с точки"""
     tg_user = get_object_or_404(TgUser, id=user_id)
     feeds = Feed.objects.all()
     points = TradingPoint.objects.all()
     if request.method == 'POST':
         data = request.POST
-        feeds_report = list()
         trading_point = get_object_or_404(
             TradingPoint, id=data.get('trading_point')
         )
-        for feed in feeds:
-            amount = int(data.get(f'feed_{feed.id}'))
-            if amount > 0:
-                amount_feed = FeedAmount.objects.create(
-                    feed=feed,
-                    amount=amount,
-                )
-                feeds_report.append(amount_feed)
-
         comment = data.get('comment')
-
         report = ReceivingReport.objects.create(
             user=tg_user,
             comment=comment,
             trading_point=trading_point,
         )
-        report.report.set(feeds_report)
+
+        for feed in feeds:
+            amount = int(data.get(f'feed_{feed.id}'))
+            if amount > 0:
+                FeedAmount.objects.create(
+                    feed=feed,
+                    amount=amount,
+                    receiving_report=report,
+                )
 
         for file in request.FILES.getlist('images'):
             ReportPhoto.objects.create(
