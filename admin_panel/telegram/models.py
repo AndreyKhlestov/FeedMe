@@ -1,6 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models.signals import pre_delete, pre_save
+from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
 
 from admin_panel.django_settings.s3_storage import MediaStorage
@@ -42,8 +42,8 @@ class TgUserCategory(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Категорию'
-        verbose_name_plural = 'Категории'
+        verbose_name = 'Категорию пользователя'
+        verbose_name_plural = 'Категории пользователя'
 
     def __str__(self) -> str:
         return self.title
@@ -186,8 +186,8 @@ class TypeFeed(CreateNameModel):
 class Category(CreateNameModel):
     """Категория."""
     class Meta:
-        verbose_name = 'Категория'
-        verbose_name_plural = 'Категории'
+        verbose_name = 'Категория корма'
+        verbose_name_plural = 'Категории корма'
 
 
 class UnitMeasure(CreateNameModel):
@@ -412,3 +412,86 @@ def delete_related_file_edit(sender, instance, **kwargs):
         # save определяет - будет ли модель сохранена после удаления файла.
 
 
+@receiver(pre_save, sender=TransferReport)
+def update_feed_amount_on_transfer_report(sender, instance, **kwargs):
+    if instance.pk:
+        old_instance = TransferReport.objects.get(pk=instance.pk)
+        if old_instance.approval is False and instance.approval is True:
+            for feed_amount in instance.feeds_amount.all():
+                sender_feed_amount = FeedAmount.objects.filter(
+                    tg_user=instance.user,
+                    feed=feed_amount.feed
+                ).first()
+
+                # Уменьшаем количество корма у пользователя-отправителя
+                sender_feed_amount.amount -= feed_amount.amount
+                sender_feed_amount.save()
+
+                recipient_feed_amount = FeedAmount.objects.filter(
+                    tg_user=instance.recipient,
+                    feed=feed_amount.feed,
+                ).first()
+                if recipient_feed_amount:
+                    recipient_feed_amount.amount += feed_amount.amount
+                    recipient_feed_amount.save()
+                else:
+                    FeedAmount.objects.create(
+                        tg_user=instance.recipient,
+                        feed=feed_amount.feed,
+                        amount=feed_amount.amount
+                    )
+
+
+@receiver(post_save, sender=FeedAmount)
+def update_feed_amount_on_report(sender, instance, created, **kwargs):
+    if instance.amount == 0:
+        instance.delete()
+
+    if created:
+        if instance.receiving_report:
+            tg_user = instance.receiving_report.user
+            feed_amount_user = tg_user.feeds_amount.filter(
+                feed=instance.feed
+            ).first()
+            if feed_amount_user:
+                feed_amount_user.amount += instance.amount
+                feed_amount_user.save()
+            else:
+                FeedAmount.objects.create(
+                    tg_user=tg_user,
+                    feed=instance.feed,
+                    amount=instance.amount
+                )
+
+        elif instance.delivery_report:
+            tg_user = instance.delivery_report.user
+            feed_amount_user = tg_user.feeds_amount.filter(
+                feed=instance.feed
+            ).first()
+            if feed_amount_user:
+                feed_amount_user.amount -= instance.amount
+                feed_amount_user.save()
+
+        elif instance.transfer_report and instance.transfer_report.approval:
+            tg_user = instance.transfer_report.user
+            sender_feed_amount = tg_user.feeds_amount.filter(
+                feed=instance.feed
+            ).first()
+
+            # Уменьшаем количество корма у пользователя-отправителя
+            sender_feed_amount.amount -= instance.amount
+            sender_feed_amount.save()
+
+            recipient = instance.transfer_report.recipient
+            recipient_feed_amount = recipient.feeds_amount.filter(
+                feed=instance.feed
+            ).first()
+            if recipient_feed_amount:
+                recipient_feed_amount.amount += instance.amount
+                recipient_feed_amount.save()
+            else:
+                FeedAmount.objects.create(
+                    tg_user=recipient,
+                    feed=instance.feed,
+                    amount=instance.amount
+                )
