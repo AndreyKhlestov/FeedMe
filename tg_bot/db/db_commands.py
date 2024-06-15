@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User as Model_User
 from django.core.exceptions import ObjectDoesNotExist
 
-from admin_panel.telegram.models import TgUser, Mailing, FeedAmount
+from admin_panel.telegram.models import TgUser, Mailing, FeedAmount, ReceivingReport
 
 
 @sync_to_async()
@@ -84,15 +84,12 @@ def model_save(model):
 
 
 @sync_to_async
-def get_user_statistic():
+def get_user_statistic(user_id: int):
     """Сбор и вывод данных статистики пользователя."""
-    ...
+    return FeedAmount.objects.filter(receiving_report__user__id=user_id).all()
 
 
 @sync_to_async
 def get_user_feed_amount(user_id: int) -> FeedAmount:
     """Корм на балансе пользователя."""
     return FeedAmount.objects.filter(tg_user__id=user_id).all()
-
-# .aggregate(total=Sum('amount'))['total']
-# from django.db.models import Sum
