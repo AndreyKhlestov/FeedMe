@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import reverse
 
 from admin_panel.telegram.forms import (
     MailingForm, FeedAmountForm, ReportPhotoForm
@@ -20,6 +21,17 @@ class BotAdminSite(admin.AdminSite):
         app_dict = self._build_app_dict(request)
         # Сортировка приложений (возможно) по id - в порядке регистрации
         app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
+
+        new_models = [
+            {
+                "name": "Статистика",
+                "admin_url": reverse('tg:statistics'),
+                "view_only": True
+            },
+        ]
+        for app in app_list:
+            app['models'].extend(new_models)
+
         return app_list
 
 

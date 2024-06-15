@@ -6,7 +6,7 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from tg_bot.config import logger
+from tg_bot.config import logger, site_url
 from tg_bot.loader import bot
 from tg_bot.states.all_states import StateUser
 
@@ -19,14 +19,17 @@ from tg_bot.db import db_commands as db
 default_router = Router()
 
 
-GET_FEED = "Забрать корм"
-FEEDING = "Кормление"
-TRANSFER = "Передать корм волонтеру"
+GET_FEED = "get_feed"
+FEEDING = "to_feed"
+TRANSFER = "transfer_feed"
 NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
-URL = 'https://unique-leopard-enhanced.ngrok-free.app/telegram/{slug}/{message.from_user.id}/'
+URL = f'https://{site_url}' + '/telegram/{slug}/{call.from_user.id}/'
+PERSONAL_ACCOUNT = "personal_account"
+
 
 def is_valid_phone_number(phone_number: str) -> bool:
+    """Валидация ввода номера телефона вручную."""
     pattern = re.compile(r"^\+?[1-9]\d{1,14}$")
     return bool(pattern.match(phone_number))
 
@@ -68,6 +71,7 @@ async def check_in_base(message, phone_number):
 
 @default_router.callback_query(F.data == "back_main_menu")
 async def back_main_menu(call: types.CallbackQuery, state: FSMContext):
+    """Возращене в главное меню."""
     await call.message.delete()
     await main_menu(call.from_user, state)
 
@@ -77,8 +81,8 @@ async def main_menu(user: types.User, state: FSMContext):
     await state.clear()
     await bot.send_message(
         chat_id=user.id,
-        text=f"{user.full_name}, добро пожаловать в главное меню!",
-        reply_markup=reply_kb.MAIN_MENU_KBRD,
+        text="Главное меню",
+        reply_markup=inline_kb.main_menu(),
     )
 
 
@@ -128,111 +132,184 @@ async def command_help(message: types.Message):
     await message.answer("Для запуска или перезапуска бота напишите /start")
 
 
-@default_router.message(F.text == GET_FEED)
-async def get_feed(message: types.Message):
+@default_router.callback_query(F.data == GET_FEED)
+async def get_feed(call: types.CallbackQuery):
     """Получение корма."""
+    await call.message.delete()
     markup = InlineKeyboardBuilder()
     markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
         url=URL.format(
             slug='receiving_report',
-            message=message))))  # url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'
-    return message.answer('Привет', reply_markup=markup.as_markup())
+            call=call)
+    )))
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
+        text="Здесь будут получать корм.",
+        reply_markup=markup.as_markup(),
+    )
 
 
-@default_router.message(F.text == FEEDING)
-async def feeding(message: types.Message):
+@default_router.callback_query(F.data == FEEDING)
+async def feeding(call: types.CallbackQuery):
     """Кормление."""
+    await call.message.delete()
     markup = InlineKeyboardBuilder()
     markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
         url=URL.format(
             slug='feed_report',
-            message=message,))))  # url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'
+            call=call,)
+    )))
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
+        text="Здесь будут кормить котиков.",
+        reply_markup=markup.as_markup(),
+    )
+
+
+
+# @default_router.message(Command('check'))
+# async def feeding(message: types.Message):
+#     """Проверка номера телефона."""
+#     markup = InlineKeyboardBuilder()
+#     markup.add(InlineKeyboardButton(text='check', web_app=WebAppInfo(
+#         url=URL.format(
+#             slug='check_phone_number',
+#             message=message,))))
+#     return message.answer('check', reply_markup=markup.as_markup())
+
+
+# @default_router.message(Command('transfer'))
+# async def feeding(message: types.Message):
+#     """Передача корма от волонтера к волонтеру."""
+#     markup = InlineKeyboardBuilder()
+#     markup.add(InlineKeyboardButton(text='transfer', web_app=WebAppInfo(
+#         url=URL.format(
+#             slug='transfer_report',
+#             message=message,))))
+#     return message.answer('transfer', reply_markup=markup.as_markup())
+
+
+# @default_router.message(StateUser.send_phone, F.contact)
+# async def check_contact_in_base(message: types.Message):
+#     """Проверка волонтера на наличие в базе, если слать контакт."""
+#     phone_number = ensure_plus_prefix(message.contact.phone_number)
+#     await check_in_base(message, phone_number)
+
+
+# @default_router.message(StateUser.send_phone, F.text)
+# async def check_text_phone_number_in_base(message: types.Message):
+#     """Проверка волонтера на наличие в базе при ручном вводе."""
+#     phone_number = message.text.strip()
+
+#     if not is_valid_phone_number(phone_number):
+#         await message.answer(
+#             text=(
+#                 "Пожалуйста, введите корректный "
+#                 "номер телефона по типу +79ХХХХХХХХХ."
+#             )
+#         )
+#         return
+#     await check_in_base(message, phone_number)
+
+
+# @default_router.callback_query(F.data == NOT_ACCEPT_FEED)
+# async def delete_acc_notacc_buttons(callback_query: types.CallbackQuery):
+#     """Отколонение запроса на передачу корма."""
+#     await callback_query.bot.send_message(
+#         chat_id=callback_query.from_user.id,
+#         text="Запрос отклонен",
+
+# @default_router.callback_query(F.data == TRANSFER)
+# async def transfer_from_volunteer_to_volunteer(
+#     call: types.CallbackQuery, state: FSMContext
+# ):
+#     """Передача корма от волонтера волонтеру."""
+#     await call.message.delete()
+#     await state.set_state(StateUser.send_phone)
+#     await call.bot.send_message(
+#         chat_id=call.from_user.id,
+#         text=(
+#             "Пожалуйста, выберите контакт из вашей "
+#             "телефонной книги и отправьте его сюда. "
+#             "Или введите номер вручную по типу +79ХХХХХХХХХ."
+#         ),
+#     )
+
+
+# @default_router.message(StateUser.send_phone, F.contact)
+# async def check_contact_in_base(message: types.Message):
+#     """Проверка волонтера на наличие в базе, если слать контакт."""
+#     phone_number = ensure_plus_prefix(message.contact.phone_number)
+#     await check_in_base(message, phone_number)
+
+
+# @default_router.message(StateUser.send_phone, F.text)
+# async def check_text_phone_number_in_base(message: types.Message):
+#     """Проверка волонтера на наличие в базе при ручном вводе."""
+#     phone_number = message.text.strip()
+
+#     if not is_valid_phone_number(phone_number):
+#         await message.answer(
+#             text=(
+#                 "Пожалуйста, введите корректный "
+#                 "номер телефона по типу +79ХХХХХХХХХ."
+#             )
+#         )
+#         return
+#     await check_in_base(message, phone_number)
+
+
+# @default_router.callback_query(F.data == NOT_ACCEPT_FEED)
+# async def delete_acc_notacc_buttons(call: types.CallbackQuery):
+#     """Отколонение запроса на передачу корма."""
+#     await call.bot.send_message(
+#         chat_id=call.from_user.id,
+#         text="Запрос отклонен",
+#     )
+#     await bot.edit_message_text(
+#         text=call.message.text,
+#         chat_id=call.from_user.id,
+#         message_id=call.message.message_id,
+#     )
+
+
+# @default_router.callback_query(F.data == ACCEPY_FEED)
+# async def accept_feed(call: types.CallbackQuery):
+#     """Принятие запроса на передачу корма."""
+#     await call.bot.send_message(
+#         chat_id=call.from_user.id,
+#         text="Здесь будет происходить передача корма",
+#     )
+#     await bot.edit_message_text(
+#         text=call.message.text,
+#         chat_id=call.from_user.id,
+#         message_id=call.message.message_id,
+#     )
+
+
+@default_router.message(Command("report"))
+async def command_otchet(message: types.Message):
+    """Переход на страницу отчета."""
+    markup = InlineKeyboardBuilder()
+    url = (
+        f'https://{site_url}/telegram/receiving_report/{message.from_user.id}/'
+    )
+    markup.add(
+        InlineKeyboardButton(
+            text='hello',
+            web_app=WebAppInfo(url=url)
+        )
+    )
     return message.answer('Привет', reply_markup=markup.as_markup())
 
 
-@default_router.message(F.text == TRANSFER)
-async def transfer_from_volunteer_to_volunteer(
-    message: types.Message, state: FSMContext
-):
-    """Передача корма от волонтера волонтеру."""
-    await state.set_state(StateUser.send_phone)
-    await message.answer(
-        text=(
-            "Пожалуйста, выберите контакт из вашей "
-            "телефонной книги и отправьте его сюда. "
-            "Или введите номер вручную по типу +79ХХХХХХХХХ."
-        )
+@default_router.callback_query(F.data == PERSONAL_ACCOUNT)
+async def personal_account(call: types.CallbackQuery):
+    """Личный кабинет."""
+    await call.message.delete()
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
+        text="Здесь будет личный кабинет.",
+        reply_markup=inline_kb.back_main_menu(),
     )
 
-
-@default_router.message(Command('check'))
-async def feeding(message: types.Message):
-    """Проверка номера телефона."""
-    markup = InlineKeyboardBuilder()
-    markup.add(InlineKeyboardButton(text='check', web_app=WebAppInfo(
-        url=URL.format(
-            slug='check_phone_number',
-            message=message,))))
-    return message.answer('check', reply_markup=markup.as_markup())
-
-
-@default_router.message(Command('transfer'))
-async def feeding(message: types.Message):
-    """Передача корма от волонтера к волонтеру."""
-    markup = InlineKeyboardBuilder()
-    markup.add(InlineKeyboardButton(text='transfer', web_app=WebAppInfo(
-        url=URL.format(
-            slug='transfer_report',
-            message=message,))))
-    return message.answer('transfer', reply_markup=markup.as_markup())
-
-
-@default_router.message(StateUser.send_phone, F.contact)
-async def check_contact_in_base(message: types.Message):
-    """Проверка волонтера на наличие в базе, если слать контакт."""
-    phone_number = ensure_plus_prefix(message.contact.phone_number)
-    await check_in_base(message, phone_number)
-
-
-@default_router.message(StateUser.send_phone, F.text)
-async def check_text_phone_number_in_base(message: types.Message):
-    """Проверка волонтера на наличие в базе при ручном вводе."""
-    phone_number = message.text.strip()
-
-    if not is_valid_phone_number(phone_number):
-        await message.answer(
-            text=(
-                "Пожалуйста, введите корректный "
-                "номер телефона по типу +79ХХХХХХХХХ."
-            )
-        )
-        return
-    await check_in_base(message, phone_number)
-
-
-@default_router.callback_query(F.data == NOT_ACCEPT_FEED)
-async def delete_acc_notacc_buttons(callback_query: types.CallbackQuery):
-    """Отколонение запроса на передачу корма."""
-    await callback_query.bot.send_message(
-        chat_id=callback_query.from_user.id,
-        text="Запрос отклонен",
-    )
-    await bot.edit_message_text(
-        text=callback_query.message.text,
-        chat_id=callback_query.from_user.id,
-        message_id=callback_query.message.message_id,
-    )
-
-
-@default_router.callback_query(F.data == ACCEPY_FEED)
-async def accept_feed(callback_query: types.CallbackQuery):
-    """Принятие запроса на передачу корма."""
-    await callback_query.bot.send_message(
-        chat_id=callback_query.from_user.id,
-        text="Здесь будет происходить передача корма",
-    )
-    await bot.edit_message_text(
-        text=callback_query.message.text,
-        chat_id=callback_query.from_user.id,
-        message_id=callback_query.message.message_id,
-    )

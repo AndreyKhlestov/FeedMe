@@ -43,6 +43,15 @@ def mailing(request):
     return redirect('admin:telegram_mailing_changelist')
 
 
+@login_required
+def statistics(request):
+
+    data = {
+
+    }
+    return render(request, 'statistics.html', data)
+
+
 def create_receiving_report(request, user_id):
     """Создание отчета по получению корма с точки"""
     tg_user = get_object_or_404(TgUser, id=user_id)
