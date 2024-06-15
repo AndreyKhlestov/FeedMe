@@ -11,5 +11,5 @@ urlpatterns = [
         views.create_receiving_report,
         name='report'
     ),
-
+    path('success/', views.success, name='success'),
 ]
