@@ -263,6 +263,7 @@ async def command_otchet(message: types.Message):
 #     )
 
 
+@default_router.callback_query(StateUser.statistics, F.data == "back_step")
 @default_router.callback_query(F.data == PERSONAL_ACCOUNT)
 async def personal_account(call: types.CallbackQuery):
     """Личный кабинет"""
@@ -275,16 +276,22 @@ async def personal_account(call: types.CallbackQuery):
 
 
 @default_router.callback_query(F.data == STATISTIC)
-async def get_statistic(call: types.CallbackQuery):
+async def get_statistic(call: types.CallbackQuery, state: FSMContext):
     """Статистика"""
+    balance_feed = await db.get_user_feed_amount(call.from_user.id)
+    if balance_feed.count() == 0:
+        text = 'Ваша баланс равен 0'
+    else:
+        text = 'Статистика:\n\nВаш баланс: \n'
+        for feed_amount in balance_feed:
+            text += f'{feed_amount.feed}- {feed_amount.amount} '
     await call.message.delete()
-    keyboard = InlineKeyboardBuilder()
+    await state.set_state(StateUser.statistics)
+    keyboard = InlineKeyboardBuilder()  # Доработать клавву!
     keyboard.row(inline_kb.BUTTON_BACK_MAIN_MENU)
     keyboard.row(inline_kb.BUTTONS_BACK_STEP)
     await bot.send_message(
         chat_id=call.from_user.id,
-        text="Статистика:",
+        text=text,
         reply_markup=keyboard.as_markup()
-        # reply_markup=inline_kb.back_main_menu(),
-        # reply_markup=inline_kb.back_step(),
     )

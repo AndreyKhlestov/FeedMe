@@ -1,15 +1,16 @@
 from asgiref.sync import sync_to_async
 from aiogram.types.user import User
+from django.db.models import Sum
 from django.utils import timezone
 from django.contrib.auth.models import User as Model_User
 from django.core.exceptions import ObjectDoesNotExist
 
-from admin_panel.telegram.models import TgUser, Mailing
+from admin_panel.telegram.models import TgUser, Mailing, FeedAmount
 
 
 @sync_to_async()
 def create_super_user(username, password):
-    """Автоматическое создание логина и пароля для суперпользователя"""
+    """Автоматическое создание логина и пароля для суперпользователя."""
     if not Model_User.objects.filter(username=username).exists():
         Model_User.objects.create_superuser(username, password=password)
 
@@ -18,7 +19,7 @@ def create_super_user(username, password):
 def get_all_malling():
     """
     Получение неотправленных рассылок,
-    у которых время отправления настало или истекло
+    у которых время отправления настало или истекло.
     """
     now = timezone.now()
     return Mailing.objects.filter(is_sent=False, date_malling__lte=now)
@@ -38,7 +39,7 @@ def get_user_by_number(phone_number: str) -> TgUser:
 
 @sync_to_async
 def get_and_update_user(user: User):
-    """Добавление и/или получение пользователя"""
+    """Добавление и/или получение пользователя."""
     tg_user = TgUser.objects.filter(id=user.id).first()
     if (tg_user and
             (tg_user.username != user.username or
@@ -54,7 +55,7 @@ def get_and_update_user(user: User):
 
 @sync_to_async
 def end_registration(user: User, phone_number: str):
-    """Окончание регистрации - запись в модель id и телефона"""
+    """Окончание регистрации - запись в модель id и телефона."""
     tg_user = TgUser.objects.get(phone_number=phone_number)
     tg_user.id = user.id
     tg_user.username = user.username or '-'
@@ -63,7 +64,7 @@ def end_registration(user: User, phone_number: str):
 
 @sync_to_async
 def set_bot_block(user_id: int):
-    """Запись отметки о блокировке пользователем бота"""
+    """Запись отметки о блокировке пользователем бота."""
     tg_user = TgUser.objects.get(id=user_id)
     tg_user.bot_unblocked = False
     tg_user.save()
@@ -71,12 +72,27 @@ def set_bot_block(user_id: int):
 
 @sync_to_async
 def users_mailing():
-    """Выдача всех пользователей для рассылки"""
+    """Выдача всех пользователей для рассылки."""
     users = TgUser.objects.filter(bot_unblocked=True)
     return users
 
 
 @sync_to_async
 def model_save(model):
-    """Сохранение (изменений) модели"""
+    """Сохранение (изменений) модели."""
     model.save()
+
+
+@sync_to_async
+def get_user_statistic():
+    """Сбор и вывод данных статистики пользователя."""
+    ...
+
+
+@sync_to_async
+def get_user_feed_amount(user_id: int) -> FeedAmount:
+    """Корм на балансе пользователя."""
+    return FeedAmount.objects.filter(tg_user__id=user_id).all()
+
+# .aggregate(total=Sum('amount'))['total']
+# from django.db.models import Sum
