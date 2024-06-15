@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Отчет о получении товара</title>
     {% load static %}
-    <script src="{% static 'js/report.js' %}" defer></script>
+    <script src="{% static 'js/take_food_report.js' %}" defer></script>
     <link rel="stylesheet" href="{% static 'css/report.css' %}"/>
 </head>
 <body>
-
     <div class="container">
         <h2>Отчет о получении товара</h2>
-        <form method="post" enctype="multipart/form-data">
+        <form id="report-form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <label for="trading_point">Выберите торговую точку:</label>
@@ -26,7 +25,7 @@
             <div class="menu">
                 {% for feed in feeds %}
                     <div class="menu-item">
-                        <img src="{{ feed.image_url }}" alt="wet_cats">
+                        <img src="{{ feed.image_url }}" alt="{{ feed.name }}">
                         <p>{{ feed.name }} ({{ feed.unit_measure }})</p>
                         <div class="quantity-controls">
                             <button type="button" onclick="decreaseQuantity('feed_{{ feed.id }}')">-</button>
@@ -39,17 +38,19 @@
             </div>
             <div class="form-group">
                 <label for="images">Добавить изображения:</label>
-                <input type="file" id="images" name="images" multiple>
+                <input type="file" id="images" name="images" required multiple>
             </div>
             <div class="form-group">
                 <label for="name">Добавить комментарий:</label>
-                <input type="text" id="name" name="comment" required>
+                <input type="text" id="name" name="comment">
             </div>
             <div class="form-buttons">
                 <button type="submit">Сохранить отчет</button>
             </div>
         </form>
+        <div id="alert-message" style="display:none;color:red;">
+            Введите хотя бы один корм.
+        </div>
     </div>
 </body>
 </html>
-

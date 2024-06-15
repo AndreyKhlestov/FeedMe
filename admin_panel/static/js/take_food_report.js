@@ -26,3 +26,26 @@ function decreaseQuantity(category) {
         hiddenInput.value = currentValue - 1;
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('report-form');
+    const alertMessage = document.getElementById('alert-message');
+
+    form.addEventListener('submit', (event) => {
+        const inputs = document.querySelectorAll('input[type="hidden"][id^="feed_"]');
+        let allZero = true;
+
+        inputs.forEach(input => {
+            if (parseInt(input.value) > 0) {
+                allZero = false;
+            }
+        });
+
+        if (allZero) {
+            alertMessage.style.display = 'block';
+            event.preventDefault();
+        } else {
+            alertMessage.style.display = 'none';
+        }
+    });
+});

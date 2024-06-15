@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет о кормлении</title>
+    {% load static %}
+    <script src="{% static 'js/feed_food_report.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'css/report.css' %}"/>
+</head>
+<body>
+    <div class="container">
+        <h2>Отчет о кормлении</h2>
+        <form id="report-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <h3><label for="address">Введите адрес места кормления:</label></h3>
+                <input type="text" id="address" name="address" required>
+            </div>
+            <div class="menu">
+                {% for feed in feeds %}
+                    <div class="menu-item">
+                        <img src="{{ feed.feed.image_url }}" alt="{{ feed.name }}">
+                        <p>{{ feed.feed }}</p>
+                        <div class="quantity-controls">
+                            <button type="button" onclick="decreaseQuantity('feed_{{ feed.id }}', {{ feed.amount }})">-</button>
+                            <span id="feed_{{ feed.id }}_display">{{ feed.amount }}</span>
+                            <button type="button" onclick="increaseQuantity('feed_{{ feed.id }}', {{ feed.amount }})">+</button>
+                        </div>
+                        <input type="hidden" id="feed_{{ feed.id }}_input" name="feed_{{ feed.id }}" value="{{ feed.amount }}">
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="images">Добавить изображения:</label>
+                <input type="file" id="images" name="images" required multiple>
+            </div>
+            <div class="form-group">
+                <label for="comment">Добавить комментарий:</label>
+                <input type="text" id="comment" name="comment">
+            </div>
+            <div class="form-buttons">
+                <button type="submit">Сохранить отчет</button>
+            </div>
+        </form>
+        <div id="alert-message" style="display:none;color:red;">
+            Введите хотя бы один корм.
+        </div>
+    </div>
+</body>
+</html>

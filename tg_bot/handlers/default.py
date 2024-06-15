@@ -24,8 +24,8 @@ FEEDING = "to_feed"
 TRANSFER = "transfer_feed"
 NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
+URL = 'https://{site_url}/telegram/{slug}/{message.from_user.id}/'
 PERSONAL_ACCOUNT = "personal_account"
-
 
 
 def is_valid_phone_number(phone_number: str) -> bool:
@@ -136,10 +136,16 @@ async def command_help(message: types.Message):
 async def get_feed(call: types.CallbackQuery):
     """Получение корма."""
     await call.message.delete()
+    markup = InlineKeyboardBuilder()
+    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
+        url=URL.format(
+            slug='receiving_report',
+            message=message)
+    )))
     await call.bot.send_message(
         chat_id=call.from_user.id,
         text="Здесь будут получать корм.",
-        reply_markup=inline_kb.back_main_menu(),
+        reply_markup=markup.as_markup(),
     )
 
 
@@ -147,79 +153,85 @@ async def get_feed(call: types.CallbackQuery):
 async def feeding(call: types.CallbackQuery):
     """Кормление."""
     await call.message.delete()
+    markup = InlineKeyboardBuilder()
+    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
+        url=URL.format(
+            slug='feed_report',
+            message=message,)
+    )))
     await call.bot.send_message(
         chat_id=call.from_user.id,
         text="Здесь будут кормить котиков.",
-        reply_markup=inline_kb.back_main_menu(),
+        reply_markup=markup.as_markup(),
     )
 
 
-@default_router.callback_query(F.data == TRANSFER)
-async def transfer_from_volunteer_to_volunteer(
-    call: types.CallbackQuery, state: FSMContext
-):
-    """Передача корма от волонтера волонтеру."""
-    await call.message.delete()
-    await state.set_state(StateUser.send_phone)
-    await call.bot.send_message(
-        chat_id=call.from_user.id,
-        text=(
-            "Пожалуйста, выберите контакт из вашей "
-            "телефонной книги и отправьте его сюда. "
-            "Или введите номер вручную по типу +79ХХХХХХХХХ."
-        ),
-    )
+# @default_router.callback_query(F.data == TRANSFER)
+# async def transfer_from_volunteer_to_volunteer(
+#     call: types.CallbackQuery, state: FSMContext
+# ):
+#     """Передача корма от волонтера волонтеру."""
+#     await call.message.delete()
+#     await state.set_state(StateUser.send_phone)
+#     await call.bot.send_message(
+#         chat_id=call.from_user.id,
+#         text=(
+#             "Пожалуйста, выберите контакт из вашей "
+#             "телефонной книги и отправьте его сюда. "
+#             "Или введите номер вручную по типу +79ХХХХХХХХХ."
+#         ),
+#     )
 
 
-@default_router.message(StateUser.send_phone, F.contact)
-async def check_contact_in_base(message: types.Message):
-    """Проверка волонтера на наличие в базе, если слать контакт."""
-    phone_number = ensure_plus_prefix(message.contact.phone_number)
-    await check_in_base(message, phone_number)
+# @default_router.message(StateUser.send_phone, F.contact)
+# async def check_contact_in_base(message: types.Message):
+#     """Проверка волонтера на наличие в базе, если слать контакт."""
+#     phone_number = ensure_plus_prefix(message.contact.phone_number)
+#     await check_in_base(message, phone_number)
 
 
-@default_router.message(StateUser.send_phone, F.text)
-async def check_text_phone_number_in_base(message: types.Message):
-    """Проверка волонтера на наличие в базе при ручном вводе."""
-    phone_number = message.text.strip()
+# @default_router.message(StateUser.send_phone, F.text)
+# async def check_text_phone_number_in_base(message: types.Message):
+#     """Проверка волонтера на наличие в базе при ручном вводе."""
+#     phone_number = message.text.strip()
 
-    if not is_valid_phone_number(phone_number):
-        await message.answer(
-            text=(
-                "Пожалуйста, введите корректный "
-                "номер телефона по типу +79ХХХХХХХХХ."
-            )
-        )
-        return
-    await check_in_base(message, phone_number)
-
-
-@default_router.callback_query(F.data == NOT_ACCEPT_FEED)
-async def delete_acc_notacc_buttons(call: types.CallbackQuery):
-    """Отколонение запроса на передачу корма."""
-    await call.bot.send_message(
-        chat_id=call.from_user.id,
-        text="Запрос отклонен",
-    )
-    await bot.edit_message_text(
-        text=call.message.text,
-        chat_id=call.from_user.id,
-        message_id=call.message.message_id,
-    )
+#     if not is_valid_phone_number(phone_number):
+#         await message.answer(
+#             text=(
+#                 "Пожалуйста, введите корректный "
+#                 "номер телефона по типу +79ХХХХХХХХХ."
+#             )
+#         )
+#         return
+#     await check_in_base(message, phone_number)
 
 
-@default_router.callback_query(F.data == ACCEPY_FEED)
-async def accept_feed(call: types.CallbackQuery):
-    """Принятие запроса на передачу корма."""
-    await call.bot.send_message(
-        chat_id=call.from_user.id,
-        text="Здесь будет происходить передача корма",
-    )
-    await bot.edit_message_text(
-        text=call.message.text,
-        chat_id=call.from_user.id,
-        message_id=call.message.message_id,
-    )
+# @default_router.callback_query(F.data == NOT_ACCEPT_FEED)
+# async def delete_acc_notacc_buttons(call: types.CallbackQuery):
+#     """Отколонение запроса на передачу корма."""
+#     await call.bot.send_message(
+#         chat_id=call.from_user.id,
+#         text="Запрос отклонен",
+#     )
+#     await bot.edit_message_text(
+#         text=call.message.text,
+#         chat_id=call.from_user.id,
+#         message_id=call.message.message_id,
+#     )
+
+
+# @default_router.callback_query(F.data == ACCEPY_FEED)
+# async def accept_feed(call: types.CallbackQuery):
+#     """Принятие запроса на передачу корма."""
+#     await call.bot.send_message(
+#         chat_id=call.from_user.id,
+#         text="Здесь будет происходить передача корма",
+#     )
+#     await bot.edit_message_text(
+#         text=call.message.text,
+#         chat_id=call.from_user.id,
+#         message_id=call.message.message_id,
+#     )
 
 
 @default_router.message(Command("report"))

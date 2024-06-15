@@ -7,7 +7,7 @@ from django.utils import timezone
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
     Mailing, TradingPoint, ReceivingReport, ReportPhoto, TgUser, Feed,
-    FeedAmount,
+    FeedAmount, FinalDeliveryReport,
 )
 
 
@@ -71,10 +71,51 @@ def create_receiving_report(request, user_id):
             ReportPhoto.objects.create(
                 receiving_report=report, photo=file,
             )
+        return redirect('tg:success')
 
     context = {
         'points': points,
         'feeds': feeds,
     }
 
-    return render(request, 'take_food.html', context)
+    return render(request, 'take_food_report.html', context)
+
+
+def create_feed_report(request, user_id):
+    """Создание отчета по кормлению"""
+    tg_user = get_object_or_404(TgUser, id=user_id)
+    feeds = tg_user.feeds_amount.all()
+    if request.method == 'POST':
+        data = request.POST
+        address = data.get('address')
+        comment = data.get('comment')
+        report = FinalDeliveryReport.objects.create(
+            user=tg_user,
+            comment=comment,
+            address=address,
+        )
+
+        for feed in feeds:
+            amount = int(data.get(f'feed_{feed.id}'))
+            if amount > 0:
+                FeedAmount.objects.create(
+                    feed=feed.feed,
+                    amount=amount,
+                    delivery_report=report,
+                )
+
+        for file in request.FILES.getlist('images'):
+            ReportPhoto.objects.create(
+                delivery_report=report, photo=file,
+            )
+        return redirect('tg:success')
+
+    context = {
+        'feeds': feeds
+    }
+
+    return render(request, 'feed_food_report.html', context)
+
+
+def success(request):
+    return render(request, 'success.html')
