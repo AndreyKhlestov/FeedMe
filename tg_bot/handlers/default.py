@@ -24,7 +24,7 @@ FEEDING = "Кормление"
 TRANSFER = "Передать корм волонтеру"
 NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
-URL = 'https://unique-leopard-enhanced.ngrok-free.app/telegram/receiving_report/{message.from_user.id}/'
+URL = 'https://unique-leopard-enhanced.ngrok-free.app/telegram/{slug}/{message.from_user.id}/'
 
 def is_valid_phone_number(phone_number: str) -> bool:
     pattern = re.compile(r"^\+?[1-9]\d{1,14}$")
@@ -133,14 +133,21 @@ async def get_feed(message: types.Message):
     """Получение корма."""
     markup = InlineKeyboardBuilder()
     markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
-        url=URL.format(message=message))))  # url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'
+        url=URL.format(
+            slug='receiving_report',
+            message=message))))  # url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'
     return message.answer('Привет', reply_markup=markup.as_markup())
 
 
 @default_router.message(F.text == FEEDING)
 async def feeding(message: types.Message):
     """Кормление."""
-    await message.answer("Здесь будут кормить котиков и иногда собачек")
+    markup = InlineKeyboardBuilder()
+    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
+        url=URL.format(
+            slug='feed_report',
+            message=message,))))  # url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'
+    return message.answer('Привет', reply_markup=markup.as_markup())
 
 
 @default_router.message(F.text == TRANSFER)
