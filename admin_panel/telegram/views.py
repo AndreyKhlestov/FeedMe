@@ -71,6 +71,7 @@ def create_receiving_report(request, user_id):
             ReportPhoto.objects.create(
                 receiving_report=report, photo=file,
             )
+        return redirect('tg:success')
 
     context = {
         'points': points,

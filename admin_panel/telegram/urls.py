@@ -11,4 +11,5 @@ urlpatterns = [
         views.create_receiving_report,
         name='report'
     ),
+
 ]
