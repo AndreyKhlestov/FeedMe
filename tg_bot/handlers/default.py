@@ -1,6 +1,5 @@
 import re
 
-import asyncio
 from aiogram.fsm.context import FSMContext
 from aiogram import types, Router, F
 from aiogram.filters import Command
@@ -15,7 +14,6 @@ from tg_bot.keyboards import inline as inline_kb
 from tg_bot.keyboards import reply as reply_kb
 
 from tg_bot.db import db_commands as db
-from admin_panel.django_settings.settings import ALLOWED_HOSTS
 
 
 default_router = Router()
@@ -228,7 +226,7 @@ async def accept_feed(call: types.CallbackQuery):
 async def command_otchet(message: types.Message):
     """Переход на страницу отчета."""
     markup = InlineKeyboardBuilder()
-   url = (
+    url = (
         f'https://{site_url}/telegram/receiving_report/{message.from_user.id}/'
     )
     markup.add(
