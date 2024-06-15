@@ -209,6 +209,15 @@ async def accept_feed(callback_query: types.CallbackQuery):
 @default_router.message(Command('report'))
 async def command_otchet(message: types.Message):
     markup = InlineKeyboardBuilder()
-    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(url=f'https://e788-2-135-210-13.ngrok-free.app/telegram/receiving_report/{message.from_user.id}/'))) # url='https://fantastic-daifuku-040ed7.netlify.app/'
+    from tg_bot.config import site_url
+    url = (
+        f'https://{site_url}/telegram/receiving_report/{message.from_user.id}/'
+    )
+    markup.add(
+        InlineKeyboardButton(
+            text='hello',
+            web_app=WebAppInfo(url=url)
+        )
+    )
     return message.answer('Привет', reply_markup=markup.as_markup())
 
