@@ -38,22 +38,22 @@ def main_menu():
     """Главное меню"""
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
+        InlineKeyboardButton(
+            text="Личный кабинет", callback_data="personal_account"
+        )
+    )
+    keyboard.row(
         InlineKeyboardButton(text="Забрать корм", callback_data="get_feed")
     )
     keyboard.row(
         InlineKeyboardButton(
             text="Кормление", callback_data="to_feed"
         )
-    
+
     )
     keyboard.row(
         InlineKeyboardButton(
             text="Передать корм волонтеру", callback_data="transfer_feed"
-        )
-    )
-    keyboard.row(
-        InlineKeyboardButton(
-            text="Личный кабинет", callback_data="personal_account"
         )
     )
     return keyboard.as_markup()
@@ -63,6 +63,21 @@ def back_main_menu():
     """Вернуться в главное меню"""
     keyboard = InlineKeyboardBuilder()
     keyboard.add(BUTTON_BACK_MAIN_MENU)
+    return keyboard.as_markup()
+
+
+def personal_account():
+    """Личный кабинет"""
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(text="Статистика", callback_data="get_statistic")
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text="Корм на балансе", callback_data="feed_on_balance"
+        )
+    )
+    keyboard.row(BUTTON_BACK_MAIN_MENU)
     return keyboard.as_markup()
 
 

@@ -26,6 +26,9 @@ NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
 URL = f'https://{site_url}' + '/telegram/{slug}/{call.from_user.id}/'
 PERSONAL_ACCOUNT = "personal_account"
+STATISTIC = "get_statistic"
+BALANCE = "feed_on_balance"
+TOTAL_AMOUNT: int = 0
 
 
 def is_valid_phone_number(phone_number: str) -> bool:
@@ -303,13 +306,79 @@ async def command_otchet(message: types.Message):
     return message.answer('Привет', reply_markup=markup.as_markup())
 
 
+# @default_router.callback_query(F.data == PERSONAL_ACCOUNT)
+# async def personal_account(call: types.CallbackQuery):
+#     """Личный кабинет."""
+#     await call.message.delete()
+#     await call.bot.send_message(
+#         chat_id=call.from_user.id,
+#         text="Здесь будет личный кабинет.",
+#         reply_markup=inline_kb.back_main_menu(),
+#     )
+
+
+@default_router.callback_query(StateUser.statistics, F.data == "back_step")
 @default_router.callback_query(F.data == PERSONAL_ACCOUNT)
 async def personal_account(call: types.CallbackQuery):
-    """Личный кабинет."""
+    """Личный кабинет"""
     await call.message.delete()
-    await call.bot.send_message(
+    await bot.send_message(
         chat_id=call.from_user.id,
-        text="Здесь будет личный кабинет.",
-        reply_markup=inline_kb.back_main_menu(),
+        text="Личный кабинет",
+        reply_markup=inline_kb.personal_account(),
     )
 
+
+@default_router.callback_query(F.data == STATISTIC)
+async def get_statistic(call: types.CallbackQuery, state: FSMContext):
+    """Статистика"""
+    balance_feed = await db.get_user_statistic(call.from_user.id)
+    feed_summary = {}
+    total_amount = TOTAL_AMOUNT
+
+    for feed_amount in balance_feed:
+        feed = feed_amount.feed.name
+        amount = feed_amount.amount
+        total_amount += amount
+
+        if feed in feed_summary:
+            feed_summary[feed] += amount
+        else:
+            feed_summary[feed] = amount
+
+    if not feed_summary:
+        text = 'Статистика:\n\nЗа все время вы собрали: 0\n'
+    else:
+        text = f'Статистика:\n\nЗа все время вы собрали: {total_amount} кг корма\n\n'
+        text += 'За этот месяц вами собрано:\n'
+        for feed, amount in feed_summary.items():
+            text += f'{feed} - {amount} кг\n'
+
+    await call.message.delete()
+    await state.set_state(StateUser.statistics)
+    keyboard = inline_kb.builder_back_step_and_main_menu()
+    await bot.send_message(
+        chat_id=call.from_user.id,
+        text=text,
+        reply_markup=keyboard.as_markup()
+    )
+
+
+@default_router.callback_query(F.data == BALANCE)
+async def get_balance(call: types.CallbackQuery, state: FSMContext):
+    """Баланс пользователя."""
+    balance_feed = await db.get_user_feed_amount(call.from_user.id)
+    if balance_feed.count() == 0:
+        text = 'Корм на вашем балансе:\n отсутствует\n'
+    else:
+        text = 'Корм на вашем балансе:\n\n'
+        for feed_amount in balance_feed:
+            text += f'{feed_amount.feed} - {feed_amount.amount} \n'
+    await call.message.delete()
+    await state.set_state(StateUser.statistics)
+    keyboard = inline_kb.builder_back_step_and_main_menu()
+    await bot.send_message(
+        chat_id=call.from_user.id,
+        text=text,
+        reply_markup=keyboard.as_markup()
+    )
