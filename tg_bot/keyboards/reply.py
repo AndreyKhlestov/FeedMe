@@ -55,21 +55,3 @@ def get_keyboard(
     return keyboard.adjust(*sizes).as_markup(
         resize_keyboard=True, input_field_placeholder=placeholder
     )
-
-
-MAIN_MENU_KBRD = get_keyboard(
-    "Забрать корм",
-    "Кормление",
-    "Передать корм волонтеру",
-    "Личный кабинет",
-    sizes=[2, 2]
-    )
-
-
-PERSONAL_ACCOUNT_KBRD = get_keyboard(
-    "Осталось корма",
-    "...",
-    "...",
-    "...",
-    sizes=[1, 1, 1]
-    )
