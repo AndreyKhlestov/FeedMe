@@ -70,29 +70,21 @@ async def check_in_base(message, phone_number):
         )
 
 
-async def show_main_menu(call: types.CallbackQuery, state: FSMContext):
-    """Отображение главного меню без приветствия."""
-    await state.clear()
-    await call.message.edit_reply_markup(reply_markup=inline_kb.main_menu())
-
-
 @default_router.callback_query(F.data == "back_main_menu")
 async def back_main_menu(call: types.CallbackQuery, state: FSMContext):
     """Возращене в главное меню."""
-    # await call.message.delete()  # хотела с тобой посоветоваться насчет этого
-    await show_main_menu(call, state)
+    await call.message.delete()
+    await main_menu(call.from_user, state)
 
 
 async def main_menu(user: types.User, state: FSMContext):
     """Главное меню"""
     await state.clear()
-    message = await bot.send_message(
+    await bot.send_message(
         chat_id=user.id,
-        text=f"{user.full_name}, добро пожаловать в главное меню!",
+        text="Главное меню",
         reply_markup=inline_kb.main_menu(),
     )
-    # await asyncio.sleep(10)
-    # await bot.delete_message(chat_id=user.id, message_id=message.message_id)
 
 
 @default_router.message(Command("start"))
@@ -144,7 +136,7 @@ async def command_help(message: types.Message):
 @default_router.callback_query(F.data == GET_FEED)
 async def get_feed(call: types.CallbackQuery):
     """Получение корма."""
-    await call.message.edit_reply_markup(reply_markup=None)
+    await call.message.delete()
     await call.bot.send_message(
         chat_id=call.from_user.id,
         text="Здесь будут получать корм.",
@@ -155,7 +147,7 @@ async def get_feed(call: types.CallbackQuery):
 @default_router.callback_query(F.data == FEEDING)
 async def feeding(call: types.CallbackQuery):
     """Кормление."""
-    await call.message.edit_reply_markup(reply_markup=None)
+    await call.message.delete()
     await call.bot.send_message(
         chat_id=call.from_user.id,
         text="Здесь будут кормить котиков.",
@@ -168,6 +160,7 @@ async def transfer_from_volunteer_to_volunteer(
     call: types.CallbackQuery, state: FSMContext
 ):
     """Передача корма от волонтера волонтеру."""
+    await call.message.delete()
     await state.set_state(StateUser.send_phone)
     await call.message.edit_reply_markup(reply_markup=None)
     await call.bot.send_message(
@@ -248,7 +241,7 @@ async def command_otchet(message: types.Message):
 @default_router.callback_query(F.data == PERSONAL_ACCOUNT)
 async def personal_account(call: types.CallbackQuery):
     """Личный кабинет."""
-    await call.message.edit_reply_markup(reply_markup=None)
+    await call.message.delete()
     await call.bot.send_message(
         chat_id=call.from_user.id,
         text="Здесь будет личный кабинет.",
