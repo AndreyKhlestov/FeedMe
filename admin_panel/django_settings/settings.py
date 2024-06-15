@@ -30,7 +30,7 @@ SECRET_KEY = env.str("SECRET_KEY", "django-settings-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", False)
 
-ALLOWED_HOSTS = [env.str('HOST_IP'), 'localhost']
+ALLOWED_HOSTS = [env.str('HOST_IP'), '4f4e-90-154-72-111.ngrok-free.app']
 
 
 # Application definition
