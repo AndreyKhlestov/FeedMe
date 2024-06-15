@@ -36,8 +36,26 @@ def inline_keyboards(data: list or dict) -> InlineKeyboardBuilder:
 
 def main_menu():
     """Главное меню"""
-    buttons = {"lk": "Личный кабинет"}
-    keyboard = inline_keyboards(buttons)
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(text="Забрать корм", callback_data="get_feed")
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text="Кормление", callback_data="to_feed"
+        )
+    
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text="Передать корм волонтеру", callback_data="transfer_feed"
+        )
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text="Личный кабинет", callback_data="personal_account"
+        )
+    )
     return keyboard.as_markup()
 
 
