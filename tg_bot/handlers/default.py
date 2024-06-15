@@ -1,5 +1,6 @@
 import re
 
+import asyncio
 from aiogram.fsm.context import FSMContext
 from aiogram import types, Router, F
 from aiogram.filters import Command
@@ -14,19 +15,22 @@ from tg_bot.keyboards import inline as inline_kb
 from tg_bot.keyboards import reply as reply_kb
 
 from tg_bot.db import db_commands as db
+from admin_panel.django_settings.settings import ALLOWED_HOSTS
 
 
 default_router = Router()
 
 
-GET_FEED = "Забрать корм"
-FEEDING = "Кормление"
-TRANSFER = "Передать корм волонтеру"
+GET_FEED = "get_feed"
+FEEDING = "to_feed"
+TRANSFER = "transfer_feed"
 NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
+PERSONAL_ACCOUNT = "personal_account"
 
 
 def is_valid_phone_number(phone_number: str) -> bool:
+    """Валидация ввода номера телефона вручную."""
     pattern = re.compile(r"^\+?[1-9]\d{1,14}$")
     return bool(pattern.match(phone_number))
 
@@ -66,20 +70,29 @@ async def check_in_base(message, phone_number):
         )
 
 
+async def show_main_menu(call: types.CallbackQuery, state: FSMContext):
+    """Отображение главного меню без приветствия."""
+    await state.clear()
+    await call.message.edit_reply_markup(reply_markup=inline_kb.main_menu())
+
+
 @default_router.callback_query(F.data == "back_main_menu")
 async def back_main_menu(call: types.CallbackQuery, state: FSMContext):
-    await call.message.delete()
-    await main_menu(call.from_user, state)
+    """Возращене в главное меню."""
+    # await call.message.delete()  # хотела с тобой посоветоваться насчет этого
+    await show_main_menu(call, state)
 
 
 async def main_menu(user: types.User, state: FSMContext):
     """Главное меню"""
     await state.clear()
-    await bot.send_message(
+    message = await bot.send_message(
         chat_id=user.id,
         text=f"{user.full_name}, добро пожаловать в главное меню!",
-        reply_markup=reply_kb.MAIN_MENU_KBRD,
+        reply_markup=inline_kb.main_menu(),
     )
+    # await asyncio.sleep(10)
+    # await bot.delete_message(chat_id=user.id, message_id=message.message_id)
 
 
 @default_router.message(Command("start"))
@@ -128,30 +141,42 @@ async def command_help(message: types.Message):
     await message.answer("Для запуска или перезапуска бота напишите /start")
 
 
-@default_router.message(F.text == GET_FEED)
-async def get_feed(message: types.Message):
+@default_router.callback_query(F.data == GET_FEED)
+async def get_feed(call: types.CallbackQuery):
     """Получение корма."""
-    await message.answer("Здесь будет ссылка на web app")
+    await call.message.edit_reply_markup(reply_markup=None)
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
+        text="Здесь будут получать корм.",
+        reply_markup=inline_kb.back_main_menu(),
+    )
 
 
-@default_router.message(F.text == FEEDING)
-async def feeding(message: types.Message):
+@default_router.callback_query(F.data == FEEDING)
+async def feeding(call: types.CallbackQuery):
     """Кормление."""
-    await message.answer("Здесь будут кормить котиков и иногда собачек")
+    await call.message.edit_reply_markup(reply_markup=None)
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
+        text="Здесь будут кормить котиков.",
+        reply_markup=inline_kb.back_main_menu(),
+    )
 
 
-@default_router.message(F.text == TRANSFER)
+@default_router.callback_query(F.data == TRANSFER)
 async def transfer_from_volunteer_to_volunteer(
-    message: types.Message, state: FSMContext
+    call: types.CallbackQuery, state: FSMContext
 ):
     """Передача корма от волонтера волонтеру."""
     await state.set_state(StateUser.send_phone)
-    await message.answer(
+    await call.message.edit_reply_markup(reply_markup=None)
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
         text=(
             "Пожалуйста, выберите контакт из вашей "
             "телефонной книги и отправьте его сюда. "
             "Или введите номер вручную по типу +79ХХХХХХХХХ."
-        )
+        ),
     )
 
 
@@ -179,36 +204,53 @@ async def check_text_phone_number_in_base(message: types.Message):
 
 
 @default_router.callback_query(F.data == NOT_ACCEPT_FEED)
-async def delete_acc_notacc_buttons(callback_query: types.CallbackQuery):
+async def delete_acc_notacc_buttons(call: types.CallbackQuery):
     """Отколонение запроса на передачу корма."""
-    await callback_query.bot.send_message(
-        chat_id=callback_query.from_user.id,
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
         text="Запрос отклонен",
     )
     await bot.edit_message_text(
-        text=callback_query.message.text,
-        chat_id=callback_query.from_user.id,
-        message_id=callback_query.message.message_id,
+        text=call.message.text,
+        chat_id=call.from_user.id,
+        message_id=call.message.message_id,
     )
 
 
 @default_router.callback_query(F.data == ACCEPY_FEED)
-async def accept_feed(callback_query: types.CallbackQuery):
+async def accept_feed(call: types.CallbackQuery):
     """Принятие запроса на передачу корма."""
-    await callback_query.bot.send_message(
-        chat_id=callback_query.from_user.id,
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
         text="Здесь будет происходить передача корма",
     )
     await bot.edit_message_text(
-        text=callback_query.message.text,
-        chat_id=callback_query.from_user.id,
-        message_id=callback_query.message.message_id,
+        text=call.message.text,
+        chat_id=call.from_user.id,
+        message_id=call.message.message_id,
     )
 
 
-@default_router.message(Command('report'))
+@default_router.message(Command("report"))
 async def command_otchet(message: types.Message):
     markup = InlineKeyboardBuilder()
-    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'))) # url='https://fantastic-daifuku-040ed7.netlify.app/'
-    return message.answer('Привет', reply_markup=markup.as_markup())
+    markup.add(
+        InlineKeyboardButton(
+            text="hello",
+            web_app=WebAppInfo(
+                url=f"https://{ALLOWED_HOSTS[0]}/telegram/receiving_report/{message.from_user.id}/"
+            ),
+        )
+    )
+    return message.answer("Привет", reply_markup=markup.as_markup())
 
+
+@default_router.callback_query(F.data == PERSONAL_ACCOUNT)
+async def personal_account(call: types.CallbackQuery):
+    """Личный кабинет."""
+    await call.message.edit_reply_markup(reply_markup=None)
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
+        text="Здесь будет личный кабинет.",
+        reply_markup=inline_kb.back_main_menu(),
+    )
