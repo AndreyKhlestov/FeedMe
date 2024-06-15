@@ -24,7 +24,7 @@ FEEDING = "Кормление"
 TRANSFER = "Передать корм волонтеру"
 NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
-
+URL = 'https://unique-leopard-enhanced.ngrok-free.app/telegram/receiving_report/{message.from_user.id}/'
 
 def is_valid_phone_number(phone_number: str) -> bool:
     pattern = re.compile(r"^\+?[1-9]\d{1,14}$")
@@ -131,7 +131,10 @@ async def command_help(message: types.Message):
 @default_router.message(F.text == GET_FEED)
 async def get_feed(message: types.Message):
     """Получение корма."""
-    await message.answer("Здесь будет ссылка на web app")
+    markup = InlineKeyboardBuilder()
+    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
+        url=URL.format(message=message))))  # url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'
+    return message.answer('Привет', reply_markup=markup.as_markup())
 
 
 @default_router.message(F.text == FEEDING)
@@ -204,11 +207,3 @@ async def accept_feed(callback_query: types.CallbackQuery):
         chat_id=callback_query.from_user.id,
         message_id=callback_query.message.message_id,
     )
-
-
-@default_router.message(Command('report'))
-async def command_otchet(message: types.Message):
-    markup = InlineKeyboardBuilder()
-    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(url=f'https://unique-leopard-enhanced.ngrok-free.app/telegram/{message.from_user.id}/545023257/'))) # url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'
-    return message.answer('Привет', reply_markup=markup.as_markup())
-

@@ -78,7 +78,7 @@ def create_receiving_report(request, user_id):
         'feeds': feeds,
     }
 
-    return render(request, 'take_food.html', context)
+    return render(request, 'take_food_report.html', context)
 
 
 def success(request):
