@@ -79,3 +79,7 @@ def create_receiving_report(request, user_id):
     }
 
     return render(request, 'take_food.html', context)
+
+
+def success(request):
+    return render(request, 'success.html')
