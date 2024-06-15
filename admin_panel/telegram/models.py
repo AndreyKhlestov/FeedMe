@@ -118,7 +118,9 @@ class TradingPoint(models.Model):
     )
     description = models.TextField(
         verbose_name='Описание',
-        max_length=200
+        max_length=200,
+        blank=True,
+        null=True,
     )
 
     class Meta:
@@ -261,24 +263,6 @@ class ReportBase(CreatedModel):
         abstract = True
 
 
-class TransferReport(ReportBase):
-    """Модель отчета по передаче корма."""
-    recipient = models.ForeignKey(
-        TgUser,
-        verbose_name='Получатель',
-        on_delete=models.PROTECT,
-        related_name='transfer_reports'
-    )
-
-    def __str__(self):
-        return (f'Передача корма №{self.pk} от '
-                f'{self.user} к {self.recipient}')
-
-    class Meta:
-        verbose_name = 'Отчет по передаче корма'
-        verbose_name_plural = 'Отчеты по передаче корма'
-
-
 class ReceivingReport(ReportBase):
     """Модель отчета по получению корма из точки выдачи."""
     trading_point = models.ForeignKey(
@@ -295,6 +279,28 @@ class ReceivingReport(ReportBase):
     class Meta:
         verbose_name = 'Отчет по получению корма'
         verbose_name_plural = 'Отчеты по получению корма'
+
+
+class TransferReport(ReportBase):
+    """Модель отчета по передаче корма."""
+    recipient = models.ForeignKey(
+        TgUser,
+        verbose_name='Получатель',
+        on_delete=models.PROTECT,
+        related_name='transfer_reports'
+    )
+    approval = models.BooleanField(
+        verbose_name='Подтверждение передачи',
+        default=False
+    )
+
+    def __str__(self):
+        return (f'Передача корма №{self.pk} от '
+                f'{self.user} к {self.recipient}')
+
+    class Meta:
+        verbose_name = 'Отчет по передаче корма'
+        verbose_name_plural = 'Отчеты по передаче корма'
 
 
 class FinalDeliveryReport(ReportBase):
