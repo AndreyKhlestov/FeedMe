@@ -1,7 +1,10 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models.signals import pre_delete, pre_save
+from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
+
+from admin_panel.django_settings.s3_storage import MediaStorage
+from admin_panel.telegram.utils import get_unique_file_path
 
 
 class CreatedModel(models.Model):
@@ -39,8 +42,8 @@ class TgUserCategory(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Категорию'
-        verbose_name_plural = 'Категории'
+        verbose_name = 'Категорию пользователя'
+        verbose_name_plural = 'Категории пользователя'
 
     def __str__(self) -> str:
         return self.title
@@ -115,7 +118,9 @@ class TradingPoint(models.Model):
     )
     description = models.TextField(
         verbose_name='Описание',
-        max_length=200
+        max_length=200,
+        blank=True,
+        null=True,
     )
 
     class Meta:
@@ -181,8 +186,8 @@ class TypeFeed(CreateNameModel):
 class Category(CreateNameModel):
     """Категория."""
     class Meta:
-        verbose_name = 'Категория'
-        verbose_name_plural = 'Категории'
+        verbose_name = 'Категория корма'
+        verbose_name_plural = 'Категории корма'
 
 
 class UnitMeasure(CreateNameModel):
@@ -212,7 +217,14 @@ class Feed(models.Model):
         verbose_name='Единица измерения',
         related_name='unit_measures',
         on_delete=models.PROTECT
-
+    )
+    image_url = models.URLField(
+        verbose_name='Ссылка на иконку',
+        default='https://icon666.com/r/_thumb/rcl/rcls4ll64y6q_64.png'
+    )
+    name = models.CharField(
+        verbose_name='Название на сайте',
+        max_length=32,
     )
 
     class Meta:
@@ -227,43 +239,17 @@ class Feed(models.Model):
 
     def __str__(self) -> str:
         return (
-            f'#{self.type_feed.name} '
-            f'{self.category.name} '
-            f'{self.unit_measure.name}'
+            f'{self.name} ({self.unit_measure.name})'
         )
-
-
-class FeedAmount(models.Model):
-    """Корм и его количество."""
-    feed = models.ForeignKey(
-        Feed,
-        verbose_name='Корм',
-        related_name='feeds',
-        on_delete=models.CASCADE
-    )
-    amount = models.IntegerField(
-        verbose_name='Кол-во',
-        default=0,
-        validators=(MinValueValidator(0),)
-    )
-
-    class Meta:
-        verbose_name = 'Данные о корме'
-        verbose_name_plural = 'Данные о кормах'
 
 
 class ReportBase(CreatedModel):
     """Абстрактная модель отчета."""
     user = models.ForeignKey(
         TgUser,
-        verbose_name='Пользователя',
+        verbose_name='Пользователь',
         on_delete=models.PROTECT,
         related_name='%(class)s_user'
-    )
-    report = models.ManyToManyField(
-        FeedAmount,
-        verbose_name='Корм',
-        related_name='%(class)s_feeds'
     )
     comment = models.TextField(
         verbose_name='Комментарий',
@@ -275,24 +261,6 @@ class ReportBase(CreatedModel):
 
     class Meta:
         abstract = True
-
-
-class TransferReport(ReportBase):
-    """Модель отчета по передаче корма."""
-    recipient = models.ForeignKey(
-        TgUser,
-        verbose_name='Получатель',
-        on_delete=models.PROTECT,
-        related_name='transfer_reports'
-    )
-
-    def __str__(self):
-        return (f'Передача корма №{self.pk} от '
-                f'{self.user} к {self.recipient}')
-
-    class Meta:
-        verbose_name = 'Отчет по передаче корма'
-        verbose_name_plural = 'Отчеты по передаче корма'
 
 
 class ReceivingReport(ReportBase):
@@ -307,6 +275,28 @@ class ReceivingReport(ReportBase):
     def __str__(self):
         return (f'Получение корма №{self.pk} с точки '
                 f'{self.trading_point} пользователем {self.user}')
+
+    class Meta:
+        verbose_name = 'Отчет по получению корма'
+        verbose_name_plural = 'Отчеты по получению корма'
+
+
+class TransferReport(ReportBase):
+    """Модель отчета по передаче корма."""
+    recipient = models.ForeignKey(
+        TgUser,
+        verbose_name='Получатель',
+        on_delete=models.PROTECT,
+        related_name='transfer_reports'
+    )
+    approval = models.BooleanField(
+        verbose_name='Подтверждение передачи',
+        default=False
+    )
+
+    def __str__(self):
+        return (f'Передача корма №{self.pk} от '
+                f'{self.user} к {self.recipient}')
 
     class Meta:
         verbose_name = 'Отчет по передаче корма'
@@ -329,34 +319,76 @@ class FinalDeliveryReport(ReportBase):
         verbose_name_plural = 'Отчеты по конечной выдаче корма'
 
 
-class TransferReportPhoto(models.Model):
-    """Модель фотографии для отчета по передаче корма."""
-    photo = models.ImageField(upload_to='transfer_report_photos/')
-    report = models.ForeignKey(
-        TransferReport,
-        on_delete=models.CASCADE,
-        related_name='photos'
+class ReportPhoto(models.Model):
+    """Модель для фотографий отчетов."""
+    photo = models.ImageField(
+        upload_to=get_unique_file_path,
+        storage=MediaStorage(),
     )
-
-
-class ReceivingReportPhoto(models.Model):
-    """Модель фотографии для отчета по получению корма."""
-    photo = models.ImageField(upload_to='receiving_report_photos/')
-    report = models.ForeignKey(
+    receiving_report = models.ForeignKey(
         ReceivingReport,
         on_delete=models.CASCADE,
-        related_name='photos'
+        related_name='photos',
+        null=True,
     )
-
-
-class FinalDeliveryReportPhoto(models.Model):
-    """Модель фотографии для отчета по конечной выдаче корма."""
-    photo = models.ImageField(upload_to='final_delivery_report_photos/')
-    report = models.ForeignKey(
+    transfer_report = models.ForeignKey(
+        TransferReport,
+        on_delete=models.CASCADE,
+        related_name='photos',
+        null=True,
+    )
+    delivery_report = models.ForeignKey(
         FinalDeliveryReport,
         on_delete=models.CASCADE,
-        related_name='photos'
+        related_name='photos',
+        null=True,
     )
+
+
+class FeedAmount(models.Model):
+    """Корм и его количество."""
+    feed = models.ForeignKey(
+        Feed,
+        verbose_name='Корм',
+        related_name='feeds',
+        on_delete=models.CASCADE
+    )
+    amount = models.IntegerField(
+        verbose_name='Кол-во',
+        default=0,
+        validators=(MinValueValidator(0),)
+    )
+    receiving_report = models.ForeignKey(
+        ReceivingReport,
+        on_delete=models.CASCADE,
+        related_name='feeds_amount',
+        null=True,
+    )
+    transfer_report = models.ForeignKey(
+        TransferReport,
+        on_delete=models.CASCADE,
+        related_name='feeds_amount',
+        null=True,
+    )
+    delivery_report = models.ForeignKey(
+        FinalDeliveryReport,
+        on_delete=models.CASCADE,
+        related_name='feeds_amount',
+        null=True,
+    )
+    tg_user = models.ForeignKey(
+        TgUser,
+        on_delete=models.CASCADE,
+        related_name='feeds_amount',
+        null=True,
+    )
+
+    class Meta:
+        verbose_name = 'Данные о корме'
+        verbose_name_plural = 'Данные о кормах'
+
+    def __str__(self) -> str:
+        return f'{self.feed} - {self.amount}'
 
 
 @receiver(pre_delete, sender=Mailing)
@@ -380,21 +412,86 @@ def delete_related_file_edit(sender, instance, **kwargs):
         # save определяет - будет ли модель сохранена после удаления файла.
 
 
-# class Report(models.Model):
-#     trading_point = models.ForeignKey('TradingPoint', on_delete=models.PROTECT, max_length=100, verbose_name='Торговые точки')
-#     wet_cats = models.IntegerField(default=0,
-#                                    validators=[MinValueValidator(0)])
-#     dry_cats = models.IntegerField(default=0,
-#                                    validators=[MinValueValidator(0)])
-#     wet_dogs = models.IntegerField(default=0,
-#                                    validators=[MinValueValidator(0)])
-#     dry_dogs = models.IntegerField(default=0,
-#                                    validators=[MinValueValidator(0)])
-#     date = models.DateTimeField(auto_now_add=True)
-#
-#
-# class ReportImage(models.Model):
-#     report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='images')
-#     image = models.ImageField(upload_to='report_images/')
+@receiver(pre_save, sender=TransferReport)
+def update_feed_amount_on_transfer_report(sender, instance, **kwargs):
+    if instance.pk:
+        old_instance = TransferReport.objects.get(pk=instance.pk)
+        if old_instance.approval is False and instance.approval is True:
+            for feed_amount in instance.feeds_amount.all():
+                sender_feed_amount = FeedAmount.objects.filter(
+                    tg_user=instance.user,
+                    feed=feed_amount.feed
+                ).first()
+
+                # Уменьшаем количество корма у пользователя-отправителя
+                sender_feed_amount.amount -= feed_amount.amount
+                sender_feed_amount.save()
+
+                recipient_feed_amount = FeedAmount.objects.filter(
+                    tg_user=instance.recipient,
+                    feed=feed_amount.feed,
+                ).first()
+                if recipient_feed_amount:
+                    recipient_feed_amount.amount += feed_amount.amount
+                    recipient_feed_amount.save()
+                else:
+                    FeedAmount.objects.create(
+                        tg_user=instance.recipient,
+                        feed=feed_amount.feed,
+                        amount=feed_amount.amount
+                    )
 
 
+@receiver(post_save, sender=FeedAmount)
+def update_feed_amount_on_report(sender, instance, created, **kwargs):
+    if instance.amount == 0:
+        instance.delete()
+
+    if created:
+        if instance.receiving_report:
+            tg_user = instance.receiving_report.user
+            feed_amount_user = tg_user.feeds_amount.filter(
+                feed=instance.feed
+            ).first()
+            if feed_amount_user:
+                feed_amount_user.amount += instance.amount
+                feed_amount_user.save()
+            else:
+                FeedAmount.objects.create(
+                    tg_user=tg_user,
+                    feed=instance.feed,
+                    amount=instance.amount
+                )
+
+        elif instance.delivery_report:
+            tg_user = instance.delivery_report.user
+            feed_amount_user = tg_user.feeds_amount.filter(
+                feed=instance.feed
+            ).first()
+            if feed_amount_user:
+                feed_amount_user.amount -= instance.amount
+                feed_amount_user.save()
+
+        elif instance.transfer_report and instance.transfer_report.approval:
+            tg_user = instance.transfer_report.user
+            sender_feed_amount = tg_user.feeds_amount.filter(
+                feed=instance.feed
+            ).first()
+
+            # Уменьшаем количество корма у пользователя-отправителя
+            sender_feed_amount.amount -= instance.amount
+            sender_feed_amount.save()
+
+            recipient = instance.transfer_report.recipient
+            recipient_feed_amount = recipient.feeds_amount.filter(
+                feed=instance.feed
+            ).first()
+            if recipient_feed_amount:
+                recipient_feed_amount.amount += instance.amount
+                recipient_feed_amount.save()
+            else:
+                FeedAmount.objects.create(
+                    tg_user=recipient,
+                    feed=instance.feed,
+                    amount=instance.amount
+                )

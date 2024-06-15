@@ -19,7 +19,6 @@ from tg_bot.db import db_commands as db
 default_router = Router()
 
 
-ERROR_MSG_FOR_USER = "Извините, я сломался :( Но меня уже чинят!"
 GET_FEED = "Забрать корм"
 FEEDING = "Кормление"
 TRANSFER = "Передать корм волонтеру"
@@ -212,15 +211,13 @@ async def accept_feed(callback_query: types.CallbackQuery):
 async def command_otchet(message: types.Message):
     """Переход на страницу отчета."""
     markup = InlineKeyboardBuilder()
-    markup.add(
-        InlineKeyboardButton(
-            text="hello",
-            web_app=WebAppInfo(
-                url=f"https://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/"
-            ),
-        )
+    markup.add(InlineKeyboardButton(
+      text='hello',
+      web_app=WebAppInfo(
+        url=f'https://e788-2-135-210-13.ngrok-free.app/telegram/receiving_report/{message.from_user.id}/'
+      )
     )
-    return message.answer("Привет", reply_markup=markup.as_markup())
+    return message.answer('Привет', reply_markup=markup.as_markup())
 
 
 @default_router.message(F.text == PERSONAL_ACCOUNT)
