@@ -1,4 +1,5 @@
 import asyncio
+import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render, get_object_or_404
@@ -9,6 +10,7 @@ from admin_panel.telegram.models import (
     Mailing, TradingPoint, ReceivingReport, ReportPhoto, TgUser, Feed,
     FeedAmount, FinalDeliveryReport, TransferReport,
 )
+from tg_bot.config import BOT_TOKEN
 
 
 @login_required
@@ -159,20 +161,52 @@ def create_transfer_report(request, user_id, recipient_id):
             recipient=recipient,
             comment=comment
         )
-
+        list_of_amounts = []
         for feed in feeds:
             amount = int(data.get(f'feed_{feed.id}'))
             if amount > 0:
-                FeedAmount.objects.create(
+                feed_amount = FeedAmount.objects.create(
                     feed=feed.feed,
                     amount=amount,
                     transfer_report=report,
                 )
+                list_of_amounts.append(feed_amount)
 
         for file in request.FILES.getlist('images'):
             ReportPhoto.objects.create(
                 transfer_report=report, photo=file,
             )
+
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+        feed_names = "\n".join([f"{amount.feed.name}: {amount.amount} ({amount.feed.unit_measure})" for amount in list_of_amounts])
+        text = (
+            f"Пользователь {tg_user.full_name} передал вам корм, подтвердите получение.\n\n"
+            f"Наименование:\n{feed_names}\n"
+        )
+        payload = {
+            'chat_id': recipient.id,
+            'text': text,
+            'reply_markup': {
+                'inline_keyboard': [
+                    [
+                        {'text': 'Отклонить', 'callback_data': f'cancel_report_{report.id}'},
+                        {'text': 'Подтвердить', 'callback_data': f'confirm_report_{report.id}'}
+                    ]
+                ]
+            }
+        }
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        response = requests.post(url, json=payload, headers=headers)
+        dict_json = response.json()
+
+        if dict_json.get('error_code'):
+            if dict_json.get('description') == 'Forbidden: bot was blocked by the user':
+                recipient.bot_unblocked = False
+                recipient.save()
+            report.delete()
+            return redirect('tg:transfer_bad_success')
         return redirect('tg:transfer_success', recipient_id=recipient.id)
 
     context = {
@@ -181,6 +215,10 @@ def create_transfer_report(request, user_id, recipient_id):
     }
 
     return render(request, 'transfer_food_report.html', context)
+
+
+def bad_success(request):
+    return render(request, 'bad_success.html')
 
 
 def transfer_success(request, recipient_id):

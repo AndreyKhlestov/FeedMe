@@ -131,11 +131,13 @@ class ReportPhotoInline(admin.TabularInline):
 
 @admin.register(ReceivingReport, site=bot_admin)
 class ReceivingReportAdmin(admin.ModelAdmin):
+    list_display = ('created',)
     inlines = [ReportPhotoInline, FeedAmountInline]
 
 
 @admin.register(TransferReport, site=bot_admin)
 class TransferReportAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'id', 'created')
     inlines = [ReportPhotoInline, FeedAmountInline]
 
 

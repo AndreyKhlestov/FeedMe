@@ -20,5 +20,5 @@ urlpatterns = [
          name='transfer_report'),
     path('success/', views.success, name='success'),
     path('transfer_success/<int:recipient_id>', views.transfer_success, name='transfer_success'),
-
+    path('transfer_bad_success/', views.bad_success, name='bad_success'),
 ]
