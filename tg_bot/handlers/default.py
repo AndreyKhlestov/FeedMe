@@ -24,7 +24,7 @@ FEEDING = "to_feed"
 TRANSFER = "transfer_feed"
 NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
-URL = 'https://{site_url}/telegram/{slug}/{message.from_user.id}/'
+URL = f'https://{site_url}' + '/telegram/{slug}/{call.from_user.id}/'
 PERSONAL_ACCOUNT = "personal_account"
 
 
@@ -140,7 +140,7 @@ async def get_feed(call: types.CallbackQuery):
     markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
         url=URL.format(
             slug='receiving_report',
-            message=message)
+            call=call)
     )))
     await call.bot.send_message(
         chat_id=call.from_user.id,
@@ -157,7 +157,7 @@ async def feeding(call: types.CallbackQuery):
     markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
         url=URL.format(
             slug='feed_report',
-            message=message,)
+            call=call,)
     )))
     await call.bot.send_message(
         chat_id=call.from_user.id,
