@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка номера телефона</title>
+    {% load static %}
+    <script src="{% static 'js/feed_food_report.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'css/report.css' %}"/>
+    <style>
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Проверка номера телефона</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <h3><label for="phone_number">Введите номер телефона:</label></h3>
+                <input type="text" id="phone_number" name="phone_number" value="{{ data.phone_number|default_if_none:'' }}" required pattern="^\+7\d{10}$" title="Введите номер в формате +79013600642">
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit">Проверить номер</button>
+            </div>
+        </form>
+        {% if message %}
+            <div class="error">{{ message }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>

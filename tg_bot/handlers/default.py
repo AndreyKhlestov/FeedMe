@@ -166,6 +166,59 @@ async def feeding(call: types.CallbackQuery):
     )
 
 
+
+# @default_router.message(Command('check'))
+# async def feeding(message: types.Message):
+#     """Проверка номера телефона."""
+#     markup = InlineKeyboardBuilder()
+#     markup.add(InlineKeyboardButton(text='check', web_app=WebAppInfo(
+#         url=URL.format(
+#             slug='check_phone_number',
+#             message=message,))))
+#     return message.answer('check', reply_markup=markup.as_markup())
+
+
+# @default_router.message(Command('transfer'))
+# async def feeding(message: types.Message):
+#     """Передача корма от волонтера к волонтеру."""
+#     markup = InlineKeyboardBuilder()
+#     markup.add(InlineKeyboardButton(text='transfer', web_app=WebAppInfo(
+#         url=URL.format(
+#             slug='transfer_report',
+#             message=message,))))
+#     return message.answer('transfer', reply_markup=markup.as_markup())
+
+
+# @default_router.message(StateUser.send_phone, F.contact)
+# async def check_contact_in_base(message: types.Message):
+#     """Проверка волонтера на наличие в базе, если слать контакт."""
+#     phone_number = ensure_plus_prefix(message.contact.phone_number)
+#     await check_in_base(message, phone_number)
+
+
+# @default_router.message(StateUser.send_phone, F.text)
+# async def check_text_phone_number_in_base(message: types.Message):
+#     """Проверка волонтера на наличие в базе при ручном вводе."""
+#     phone_number = message.text.strip()
+
+#     if not is_valid_phone_number(phone_number):
+#         await message.answer(
+#             text=(
+#                 "Пожалуйста, введите корректный "
+#                 "номер телефона по типу +79ХХХХХХХХХ."
+#             )
+#         )
+#         return
+#     await check_in_base(message, phone_number)
+
+
+# @default_router.callback_query(F.data == NOT_ACCEPT_FEED)
+# async def delete_acc_notacc_buttons(callback_query: types.CallbackQuery):
+#     """Отколонение запроса на передачу корма."""
+#     await callback_query.bot.send_message(
+#         chat_id=callback_query.from_user.id,
+#         text="Запрос отклонен",
+
 # @default_router.callback_query(F.data == TRANSFER)
 # async def transfer_from_volunteer_to_volunteer(
 #     call: types.CallbackQuery, state: FSMContext
