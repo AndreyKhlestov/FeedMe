@@ -40,6 +40,10 @@ def mailing(request):
     return redirect('admin:telegram_mailing_changelist')
 
 
+def success(request):
+    return render(request, 'success.html')
+
+
 def report(request, user_id):
     points = TradingPoint.objects.all()
     if request.method == 'POST':
@@ -53,7 +57,7 @@ def report(request, user_id):
             report.save()
             for file in request.FILES.getlist('images'):
                 ReportImage.objects.create(report=report, image=file)
-            return HttpResponse('Успешно!')
+            return redirect('tg:success')
     else:
         form = ReportForm()
 
