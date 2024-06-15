@@ -148,4 +148,5 @@ AWS_STORAGE_BUCKET_NAME = os.getenv('BUCKET_NAME')
 AWS_S3_ENDPOINT_URL = 'https://storage.yandexcloud.net'
 AWS_S3_ACCESS_KEY_ID = os.getenv('AWS_S3_ACCESS_KEY_ID')
 AWS_S3_SECRET_ACCESS_KEY = os.getenv('AWS_S3_SECRET_ACCESS_KEY')
+CSRF_TRUSTED_ORIGINS = ['https://unique-leopard-enhanced.ngrok-free.app']
 AWS_QUERYSTRING_AUTH = False

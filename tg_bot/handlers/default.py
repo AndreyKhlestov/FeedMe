@@ -209,6 +209,6 @@ async def accept_feed(callback_query: types.CallbackQuery):
 @default_router.message(Command('report'))
 async def command_otchet(message: types.Message):
     markup = InlineKeyboardBuilder()
-    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'))) # url='https://fantastic-daifuku-040ed7.netlify.app/'
+    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(url=f'https://unique-leopard-enhanced.ngrok-free.app/telegram/{message.from_user.id}/545023257/'))) # url=f'http://127.0.0.1:8000/telegram/receiving_report/{message.from_user.id}/'
     return message.answer('Привет', reply_markup=markup.as_markup())
 
