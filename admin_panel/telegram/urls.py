@@ -6,6 +6,7 @@ app_name = 'tg'
 
 urlpatterns = [
     path('mailing', views.mailing, name='mailing'),
+    path('statistics', views.statistics, name='statistics'),
     path('receiving_report/<int:user_id>/',
          views.create_receiving_report,
          name='report'),
