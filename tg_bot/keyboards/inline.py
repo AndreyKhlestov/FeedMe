@@ -13,8 +13,8 @@ BUTTON_BACK_MAIN_MENU = InlineKeyboardButton(
 BUTTONS_BACK_STEP = InlineKeyboardButton(
     text="Назад ↩️", callback_data="back_step"
 )
-ACCEPT = InlineKeyboardButton(text="Принять корм", callback_data="accept_feed")
-NOT_ACCEPT = InlineKeyboardButton(text="Отклонить", callback_data="reject")
+ACCEPT = InlineKeyboardButton(text="Принять корм ✅", callback_data="accept_feed")
+NOT_ACCEPT = InlineKeyboardButton(text="Отклонить ❌", callback_data="reject")
 
 
 def inline_keyboards(data: list or dict) -> InlineKeyboardBuilder:
