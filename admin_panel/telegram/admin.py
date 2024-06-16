@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from admin_panel.telegram.forms import (
-    MailingForm, FeedAmountForm, ReportPhotoForm
+    MailingForm, FeedAmountForm, ReportPhotoForm, TgUserForm
 )
 from admin_panel.telegram.models import (
     Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
@@ -43,6 +43,7 @@ class TgUserAdmin(admin.ModelAdmin):
         'is_unblocked',
     )
     inlines = [FeedAmountInline]
+    form = TgUserForm
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

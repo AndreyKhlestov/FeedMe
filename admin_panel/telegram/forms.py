@@ -1,6 +1,9 @@
-from django import forms
+import re
 
-from admin_panel.telegram.models import FeedAmount, ReportPhoto
+from django import forms
+from django.core.exceptions import ValidationError
+
+from admin_panel.telegram.models import FeedAmount, ReportPhoto, TgUser
 
 
 class MailingForm(forms.Form):
@@ -105,3 +108,16 @@ class ReportPhotoForm(forms.ModelForm):
         exclude = [
             'receiving_report', 'transfer_report', 'delivery_report',
         ]
+
+
+class TgUserForm(forms.ModelForm):
+    class Meta:
+        model = TgUser
+        fields = '__all__'
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data['phone_number']
+        if not re.match(r'^\+7\d{10}$', phone_number):
+            raise ValidationError(
+                'Номер телефона должен начинаться с +7 и содержать 10 цифр!')
+        return phone_number
