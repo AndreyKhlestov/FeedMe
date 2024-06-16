@@ -203,6 +203,9 @@ def check_phone_number(request, user_id):
         if not tg_user_recipient.is_unblocked:
             return render_with_message('Пользователь заблокирован администратором')
 
+        if not tg_user_recipient.id:
+            return render_with_message('Пользователь не завершил регистрацию в боте')
+
         tg_user = get_object_or_404(TgUser, id=user_id)
         # Если пользователь найден, перенаправление к следующему шагу
         return redirect('tg:transfer_report', user_id=tg_user.id, recipient_id=tg_user_recipient.id)

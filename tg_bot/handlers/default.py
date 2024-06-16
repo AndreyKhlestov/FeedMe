@@ -171,17 +171,6 @@ async def transfer_feed(call: types.CallbackQuery):
     )
 
 
-# @default_router.message(Command('check'))
-# async def feeding(message: types.Message):
-#     """Проверка номера телефона."""
-#     markup = InlineKeyboardBuilder()
-#     markup.add(InlineKeyboardButton(text='check', web_app=WebAppInfo(
-#         url=URL.format(
-#             slug='check_phone_number',
-#             message=message,))))
-#     return message.answer('check', reply_markup=markup.as_markup())
-
-
 @default_router.message(Command("report"))
 async def command_otchet(message: types.Message):
     """Переход на страницу отчета."""
