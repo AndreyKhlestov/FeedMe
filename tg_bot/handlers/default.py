@@ -18,9 +18,6 @@ default_router = Router()
 
 
 URL = f'https://{site_url}' + '/telegram/{slug}/{call.from_user.id}/'
-PERSONAL_ACCOUNT = "personal_account"
-STATISTIC = "get_statistic"
-
 
 
 def ensure_plus_prefix(phone_number: str) -> str:
@@ -147,7 +144,6 @@ async def feeding(call: types.CallbackQuery):
     )
 
 
-
 # @default_router.message(Command('check'))
 # async def feeding(message: types.Message):
 #     """Проверка номера телефона."""
@@ -157,7 +153,6 @@ async def feeding(call: types.CallbackQuery):
 #             slug='check_phone_number',
 #             message=message,))))
 #     return message.answer('check', reply_markup=markup.as_markup())
-
 
 
 @default_router.message(Command("report"))
