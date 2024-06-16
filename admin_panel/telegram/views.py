@@ -48,10 +48,14 @@ def mailing(request):
 
 @login_required
 def statistics(request):
+    # Список месяцев
     months = [
         'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
         'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
     ]
+
+    # Текущая дата
+    current_date = timezone.now()
 
     # Получаем все торговые точки
     trading_points = TradingPoint.objects.all()
@@ -59,16 +63,17 @@ def statistics(request):
     # Создаем словарь для хранения данных
     data = []
     for point in trading_points:
-
         # Создаем словарь для каждой точки
         point_data = {'title': point.title, 'data': []}
 
-        for month in range(1, 13):
+        for month in range(1, current_date.month + 1):
             # Получаем количество корма за каждый месяц
-            start_date = datetime(datetime.now().year, month, 1)
-            end_date = datetime(datetime.now().year, month + 1,
+            start_date = datetime(current_date.year, month, 1)
+            start_date = timezone.make_aware(start_date)
+            end_date = datetime(current_date.year, month + 1,
                                 1) if month < 12 else datetime(
-                datetime.now().year + 1, 1, 1)
+                current_date.year + 1, 1, 1)
+            end_date = timezone.make_aware(end_date)
 
             feed_amount = FeedAmount.objects.filter(
                 receiving_report__trading_point=point,
@@ -79,6 +84,9 @@ def statistics(request):
             point_data['data'].append(feed_amount)
 
         data.append(point_data)
+
+    # Ограничиваем список месяцев текущим месяцем
+    months = months[:current_date.month]
 
     data = {
         'months': months,
