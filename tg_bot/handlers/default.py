@@ -24,10 +24,7 @@ FEEDING = "to_feed"
 TRANSFER = "transfer_feed"
 NOT_ACCEPT_FEED = "not_accept_feed"
 ACCEPY_FEED = "accept_feed"
-URL = (
-    "https://bc2b-90-154-72-111.ngrok-free.app"
-    + "/telegram/{slug}/{call.from_user.id}/"
-)
+URL = f'https://{site_url}' + '/telegram/{slug}/{call.from_user.id}/'
 PERSONAL_ACCOUNT = "personal_account"
 STATISTIC = "get_statistic"
 
@@ -260,7 +257,7 @@ async def feeding(call: types.CallbackQuery):
 async def command_otchet(message: types.Message):
     """Переход на страницу отчета."""
     markup = InlineKeyboardBuilder()
-    url = f"https://bc2b-90-154-72-111.ngrok-free.app/telegram/receiving_report/{message.from_user.id}/"
+    url = f"https://{site_url}/telegram/receiving_report/{message.from_user.id}/"
     markup.add(InlineKeyboardButton(text="hello", web_app=WebAppInfo(url=url)))
     return message.answer("Привет", reply_markup=markup.as_markup())
 
