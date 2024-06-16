@@ -147,6 +147,32 @@ async def feeding(call: types.CallbackQuery):
     )
 
 
+@default_router.callback_query(F.data == "transfer_feed")
+async def transfer_feed(call: types.CallbackQuery):
+    """Передача корма волонтеру."""
+    await call.message.delete()
+    markup = InlineKeyboardBuilder()
+    markup.row(
+        InlineKeyboardButton(
+            text="Форма для передачи корма",
+            web_app=WebAppInfo(
+                url=URL.format(
+                    slug="check_phone_number",
+                    call=call,
+                    reply_markup=markup.as_markup(),
+                ),
+            ),
+        )
+    )
+    markup.row(inline_kb.BUTTON_BACK_MAIN_MENU)
+
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
+        text=("Нажмите на кнопу 'Форма для передачи "
+              "корма' для оформления передачи"),
+        reply_markup=markup.as_markup(),
+    )
+
 
 # @default_router.message(Command('check'))
 # async def feeding(message: types.Message):
