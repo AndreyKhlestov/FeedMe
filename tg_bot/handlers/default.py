@@ -18,6 +18,9 @@ default_router = Router()
 
 
 URL = f'https://{site_url}' + '/telegram/{slug}/{call.from_user.id}/'
+PERSONAL_ACCOUNT = "personal_account"
+STATISTIC = "get_statistic"
+
 
 
 def ensure_plus_prefix(phone_number: str) -> str:
@@ -97,14 +100,24 @@ async def get_feed(call: types.CallbackQuery):
     """Получение корма."""
     await call.message.delete()
     markup = InlineKeyboardBuilder()
-    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
-        url=URL.format(
-            slug='receiving_report',
-            call=call)
-    )))
+    markup.row(
+        InlineKeyboardButton(
+            text="Форма для передачи корма",
+            web_app=WebAppInfo(
+                url=URL.format(
+                    slug="receiving_report",
+                    call=call,
+                    reply_markup=markup.as_markup(),
+                ),
+            ),
+        )
+    )
+    markup.row(inline_kb.BUTTON_BACK_MAIN_MENU)
+
     await call.bot.send_message(
         chat_id=call.from_user.id,
-        text="Здесь будут получать корм.",
+        text=("Нажмите на кнопу 'Форма для передачи "
+              "корма' для оформления передачи"),
         reply_markup=markup.as_markup(),
     )
 
@@ -114,14 +127,22 @@ async def feeding(call: types.CallbackQuery):
     """Кормление."""
     await call.message.delete()
     markup = InlineKeyboardBuilder()
-    markup.add(InlineKeyboardButton(text='hello', web_app=WebAppInfo(
-        url=URL.format(
-            slug='feed_report',
-            call=call,)
-    )))
+    markup.row(
+        InlineKeyboardButton(
+            text="Форма для списания корма",
+            web_app=WebAppInfo(
+                url=URL.format(
+                    slug="feed_report",
+                    call=call,
+                )
+            ),
+        )
+    )
+    markup.row(inline_kb.BUTTON_BACK_MAIN_MENU)
     await call.bot.send_message(
         chat_id=call.from_user.id,
-        text="Здесь будут кормить котиков.",
+        text=("Нажмите на кнопку 'Форма для списания корма' "
+              "для оформления списания"),
         reply_markup=markup.as_markup(),
     )
 
@@ -143,16 +164,9 @@ async def feeding(call: types.CallbackQuery):
 async def command_otchet(message: types.Message):
     """Переход на страницу отчета."""
     markup = InlineKeyboardBuilder()
-    url = (
-        f'https://{site_url}/telegram/receiving_report/{message.from_user.id}/'
-    )
-    markup.add(
-        InlineKeyboardButton(
-            text='hello',
-            web_app=WebAppInfo(url=url)
-        )
-    )
-    return message.answer('Привет', reply_markup=markup.as_markup())
+    url = f"https://{site_url}/telegram/receiving_report/{message.from_user.id}/"
+    markup.add(InlineKeyboardButton(text="hello", web_app=WebAppInfo(url=url)))
+    return message.answer("Привет", reply_markup=markup.as_markup())
 
 
 @default_router.callback_query(StateUser.statistics, F.data == "back_step")
