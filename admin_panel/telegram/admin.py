@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 
 from admin_panel.telegram.forms import (
-    MailingForm, FeedAmountForm, ReportPhotoForm
+    MailingForm, FeedAmountForm, ReportPhotoForm, TgUserForm
 )
 from admin_panel.telegram.models import (
     Category, Feed, TgUser, Mailing, TypeFeed, UnitMeasure, FeedAmount,
@@ -55,6 +55,7 @@ class TgUserAdmin(admin.ModelAdmin):
         'is_unblocked',
     )
     inlines = [FeedAmountInline]
+    form = TgUserForm
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -146,14 +147,22 @@ class ReceivingReportAdmin(admin.ModelAdmin):
     list_display = ('created',)
     inlines = [ReportPhotoInline, FeedAmountInline]
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(TransferReport, site=bot_admin)
 class TransferReportAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'id', 'created')
     inlines = [ReportPhotoInline, FeedAmountInline]
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(FinalDeliveryReport, site=bot_admin)
 class FinalDeliveryReportAdmin(admin.ModelAdmin):
     inlines = [ReportPhotoInline, FeedAmountInline]
 
+    def has_change_permission(self, request, obj=None):
+        return False

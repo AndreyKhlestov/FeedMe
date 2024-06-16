@@ -73,6 +73,7 @@ class TgUser(CreatedModel):
         max_length=12,
         unique=True,
         primary_key=True,
+        help_text='Номер телефона вводить в формате +7*******',
     )
     passport_photo = models.ImageField(
         verbose_name='Фото паспорта',
