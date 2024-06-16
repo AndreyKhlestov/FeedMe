@@ -57,26 +57,8 @@ def statistics(request):
     trading_points = TradingPoint.objects.all()
 
     # Создаем словарь для хранения данных
-    # data = {}
     data = []
     for point in trading_points:
-        # # Инициализируем словарь для каждой точки
-        # data[point.title] = {}
-        #
-        # for month in range(1, 13):
-        #     # Получаем количество корма за каждый месяц
-        #     start_date = datetime(timezone.now().year, month, 1)
-        #     end_date = datetime(timezone.now().year, month + 1, 1) \
-        #         if month < 12 else datetime(
-        #         timezone.now().year + 1, 1, 1)
-        #
-        #     feed_amount = FeedAmount.objects.filter(
-        #         receiving_report__trading_point=point,
-        #         receiving_report__created__range=(start_date, end_date)
-        #     ).aggregate(total_amount=Sum('amount'))['total_amount'] or 0
-        #
-        #     # Добавляем данные в словарь
-        #     data[point.title][months[month - 1]] = feed_amount
 
         # Создаем словарь для каждой точки
         point_data = {'title': point.title, 'data': []}

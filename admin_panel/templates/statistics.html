@@ -11,9 +11,6 @@
 {% endblock %}
 
 
-
-
-
 {% block content %}
     <div class="app-report model-point module">
         <h1>Статистика</h1>
@@ -37,30 +34,6 @@
             </tr>
             {% endfor %}
         </tbody>
-        
-        
-{#            <thead>#}
-{#                <tr>#}
-{#                    <th>Точка</th>#}
-{#                    {% for month in months %}#}
-{#                    <th>{{ month }}</th>#}
-{#                    {% endfor %}#}
-{#                </tr>#}
-{#            </thead>#}
-{#        #}
-{#        #}
-{#            <tbody>#}
-{#                {% for point, data_point in data.items %}#}
-{#                <tr>#}
-{#                    <td>{{ point.title }}</td>#}
-{#                    {% for month in months %}#}
-{#                        <td>{{ data_point.get(month, 0) }}</td>#}
-{#                    {% endfor %}#}
-{#                </tr>#}
-{#                {% endfor %}#}
-{#            </tbody>#}
-        
-        
         </table>
     </div>
 {% endblock %}
