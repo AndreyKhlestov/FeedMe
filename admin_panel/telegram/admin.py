@@ -133,13 +133,21 @@ class ReportPhotoInline(admin.TabularInline):
 class ReceivingReportAdmin(admin.ModelAdmin):
     inlines = [ReportPhotoInline, FeedAmountInline]
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(TransferReport, site=bot_admin)
 class TransferReportAdmin(admin.ModelAdmin):
     inlines = [ReportPhotoInline, FeedAmountInline]
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(FinalDeliveryReport, site=bot_admin)
 class FinalDeliveryReportAdmin(admin.ModelAdmin):
     inlines = [ReportPhotoInline, FeedAmountInline]
 
+    def has_change_permission(self, request, obj=None):
+        return False
