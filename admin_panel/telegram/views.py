@@ -319,8 +319,8 @@ def create_transfer_report(request, user_id, recipient_id):
             'reply_markup': {
                 'inline_keyboard': [
                     [
-                        {'text': 'Отклонить', 'callback_data': f'cancel_report_{report.id}'},
-                        {'text': 'Подтвердить', 'callback_data': f'confirm_report_{report.id}'}
+                        {'text': 'Отклонить ❌', 'callback_data': f'cancel_report_{report.id}'},
+                        {'text': 'Подтвердить ✅', 'callback_data': f'confirm_report_{report.id}'}
                     ]
                 ]
             }

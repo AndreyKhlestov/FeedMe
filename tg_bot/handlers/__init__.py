@@ -1,5 +1,9 @@
-from tg_bot.handlers.default import default_router
+from tg_bot.handlers.base_com_registration import base_reg_router
+from tg_bot.handlers.reports import reports_router
+from tg_bot.handlers.personal_account import account_router
 
 all_handlers = (
-    default_router,
+    base_reg_router,
+    reports_router,
+    account_router
 )

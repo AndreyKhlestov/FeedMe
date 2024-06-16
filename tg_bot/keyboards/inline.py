@@ -1,9 +1,11 @@
-from typing import List
-
-from aiogram.types import InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import KeyboardButton
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+
+
+from tg_bot.config import site_url
+
+
+URL = f"https://{site_url}" + "/telegram/{slug}/{call.from_user.id}/"
 
 BUTTON_BACK_MAIN_MENU = InlineKeyboardButton(
     text="Меню 📋", callback_data="back_main_menu"
@@ -11,8 +13,8 @@ BUTTON_BACK_MAIN_MENU = InlineKeyboardButton(
 BUTTONS_BACK_STEP = InlineKeyboardButton(
     text="Назад ↩️", callback_data="back_step"
 )
-ACCEPT = InlineKeyboardButton(text="Принять корм", callback_data="accept_feed")
-NOT_ACCEPT = InlineKeyboardButton(text="Отклонить", callback_data="reject")
+ACCEPT = InlineKeyboardButton(text="Принять корм ✅", callback_data="accept_feed")
+NOT_ACCEPT = InlineKeyboardButton(text="Отклонить ❌", callback_data="reject")
 
 
 def inline_keyboards(data: list or dict) -> InlineKeyboardBuilder:
@@ -39,21 +41,18 @@ def main_menu():
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
         InlineKeyboardButton(
-            text="Личный кабинет", callback_data="personal_account"
+            text="Личный кабинет 🏠", callback_data="personal_account"
         )
     )
     keyboard.row(
-        InlineKeyboardButton(text="Забрать корм", callback_data="get_feed")
+        InlineKeyboardButton(text="Забрать корм 🛒", callback_data="get_feed")
+    )
+    keyboard.row(
+        InlineKeyboardButton(text="Кормление 🍽️", callback_data="to_feed")
     )
     keyboard.row(
         InlineKeyboardButton(
-            text="Кормление", callback_data="to_feed"
-        )
-
-    )
-    keyboard.row(
-        InlineKeyboardButton(
-            text="Передать корм волонтеру", callback_data="transfer_feed"
+            text="Передать корм волонтеру 👥", callback_data="transfer_feed"
         )
     )
     return keyboard.as_markup()
@@ -70,11 +69,11 @@ def personal_account():
     """Личный кабинет"""
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
-        InlineKeyboardButton(text="Статистика", callback_data="get_statistic")
+        InlineKeyboardButton(text="Статистика 📊", callback_data="get_statistic")
     )
     keyboard.row(
         InlineKeyboardButton(
-            text="Корм на балансе", callback_data="feed_on_balance"
+            text="Корм на балансе 📦", callback_data="feed_on_balance"
         )
     )
     keyboard.row(BUTTON_BACK_MAIN_MENU)
@@ -99,12 +98,64 @@ def accept_or_not():
     """Кнопки Принять или не Принять корм."""
     keyboard = InlineKeyboardBuilder()
     keyboard.add(
-        InlineKeyboardButton(text="Принять корм", callback_data="accept_feed")
+        InlineKeyboardButton(text="Принять корм ✅", callback_data="accept_feed")
     )
     keyboard.add(
         InlineKeyboardButton(
-            text="Не принять корм", callback_data="not_accept_feed"
+            text="Не принять корм ❌", callback_data="not_accept_feed"
         )
     )
     return keyboard.as_markup()
 
+
+def feed_form(call):
+    """Кнопка для формы кормления."""
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(
+            text="Форма для списания корма 📝",
+            web_app=WebAppInfo(
+                url=URL.format(
+                    slug="feed_report",
+                    call=call,
+                )
+            ),
+        )
+    )
+    return keyboard
+
+
+def transfer_form(call):
+    """Кнопка формы передачи корма."""
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(
+            text="Форма для передачи корма 📝",
+            web_app=WebAppInfo(
+                url=URL.format(
+                    slug="check_phone_number",
+                    call=call,
+                    reply_markup=keyboard.as_markup(),
+                ),
+            ),
+        )
+    )
+    return keyboard
+
+
+def get_feed_form(call):
+    """Кнопка формы получения корма."""
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(
+            text="Форма для передачи корма 📝",
+            web_app=WebAppInfo(
+                url=URL.format(
+                    slug="receiving_report",
+                    call=call,
+                    reply_markup=keyboard.as_markup(),
+                ),
+            ),
+        )
+    )
+    return keyboard
