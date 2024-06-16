@@ -1,9 +1,12 @@
+from datetime import datetime
 import asyncio
 import requests
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
+from django.db.models import Sum
 
 from admin_panel.telegram.forms import MailingForm
 from admin_panel.telegram.models import (
@@ -45,9 +48,59 @@ def mailing(request):
 
 @login_required
 def statistics(request):
+    months = [
+        'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+    ]
+
+    # Получаем все торговые точки
+    trading_points = TradingPoint.objects.all()
+
+    # Создаем словарь для хранения данных
+    # data = {}
+    data = []
+    for point in trading_points:
+        # # Инициализируем словарь для каждой точки
+        # data[point.title] = {}
+        #
+        # for month in range(1, 13):
+        #     # Получаем количество корма за каждый месяц
+        #     start_date = datetime(timezone.now().year, month, 1)
+        #     end_date = datetime(timezone.now().year, month + 1, 1) \
+        #         if month < 12 else datetime(
+        #         timezone.now().year + 1, 1, 1)
+        #
+        #     feed_amount = FeedAmount.objects.filter(
+        #         receiving_report__trading_point=point,
+        #         receiving_report__created__range=(start_date, end_date)
+        #     ).aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+        #
+        #     # Добавляем данные в словарь
+        #     data[point.title][months[month - 1]] = feed_amount
+
+        # Создаем словарь для каждой точки
+        point_data = {'title': point.title, 'data': []}
+
+        for month in range(1, 13):
+            # Получаем количество корма за каждый месяц
+            start_date = datetime(datetime.now().year, month, 1)
+            end_date = datetime(datetime.now().year, month + 1,
+                                1) if month < 12 else datetime(
+                datetime.now().year + 1, 1, 1)
+
+            feed_amount = FeedAmount.objects.filter(
+                receiving_report__trading_point=point,
+                receiving_report__created__range=(start_date, end_date)
+            ).aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+
+            # Добавляем данные в список
+            point_data['data'].append(feed_amount)
+
+        data.append(point_data)
 
     data = {
-
+        'months': months,
+        'data': data,
     }
     return render(request, 'statistics.html', data)
 

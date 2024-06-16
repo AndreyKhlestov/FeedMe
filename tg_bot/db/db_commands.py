@@ -1,11 +1,10 @@
-from asgiref.sync import sync_to_async
 from aiogram.types.user import User
-from django.db.models import Sum
-from django.utils import timezone
+from asgiref.sync import sync_to_async
 from django.contrib.auth.models import User as Model_User
-from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
-from admin_panel.telegram.models import TgUser, Mailing, FeedAmount, ReceivingReport
+from admin_panel.telegram.models import (TgUser, Mailing, FeedAmount,
+                                         TransferReport)
 
 
 @sync_to_async()
@@ -75,6 +74,12 @@ def users_mailing():
     """Выдача всех пользователей для рассылки."""
     users = TgUser.objects.filter(bot_unblocked=True)
     return users
+
+
+@sync_to_async
+def get_transfer_report(report_id: int):
+    """Получение отчета по id"""
+    return TransferReport.objects.filter(id=report_id).first()
 
 
 @sync_to_async

@@ -12,49 +12,55 @@
 
 
 
+
+
 {% block content %}
-
-<style>
-  /* Основные стили для иконок */
-.icon-boolean {
-  border: 2px solid; /* обводка */
-  width: 1em; height: 1em; /* размеры */
-  border-radius: 50%; /* круглая форма */
-  display: inline-flex; /* позволяет выровнять иконку по центру */
-  align-items: center; /* вертикальное выравнивание */
-  justify-content: center; /* горизонтальное выравнивание */
-  font-size: 0.7em; /* размер иконки */
-}
-
-/* Стили для статуса "Сдан" */
-.icon-boolean.true {
-  border-color: #4caf50; /* зелёная обводка */
-  color: #4caf50; /* зелёный цвет символа */
-}
-
-/* Стили для статуса "Не сдан" */
-.icon-boolean.false {
-  border-color: #f44336; /* красная обводка */
-  color: #f44336; /* красный цвет символа */
-}
-</style>
-
-<div class="app-report model-point module">
-    <h1>Статистика</h1>
-
+    <div class="app-report model-point module">
+        <h1>Статистика</h1>
     
-
-
-    <table class="change-list" style="width: 100%;">
-        <thead>
+        <table class="change-list" style="width: 100%;">
+              <thead>
             <tr>
-                <th>Код ТТ</th>
-                <th>Адрес</th>
-                <th>Город</th>
-                <th>Регион</th>
-                <th>Вопросы</th>
+                <th>Точка</th>
+                {% for month in months %}
+                <th>{{ month }}</th>
+                {% endfor %}
             </tr>
         </thead>
-    </table>
-</div>
+        <tbody>
+            {% for point_data in data %}
+            <tr>
+                <td>{{ point_data.title }}</td>
+                {% for amount in point_data.data %}
+                <td>{{ amount }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        
+        
+{#            <thead>#}
+{#                <tr>#}
+{#                    <th>Точка</th>#}
+{#                    {% for month in months %}#}
+{#                    <th>{{ month }}</th>#}
+{#                    {% endfor %}#}
+{#                </tr>#}
+{#            </thead>#}
+{#        #}
+{#        #}
+{#            <tbody>#}
+{#                {% for point, data_point in data.items %}#}
+{#                <tr>#}
+{#                    <td>{{ point.title }}</td>#}
+{#                    {% for month in months %}#}
+{#                        <td>{{ data_point.get(month, 0) }}</td>#}
+{#                    {% endfor %}#}
+{#                </tr>#}
+{#                {% endfor %}#}
+{#            </tbody>#}
+        
+        
+        </table>
+    </div>
 {% endblock %}

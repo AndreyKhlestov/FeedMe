@@ -1,5 +1,3 @@
-import re
-
 from aiogram.fsm.context import FSMContext
 from aiogram import types, Router, F
 from aiogram.filters import Command
@@ -19,22 +17,7 @@ from tg_bot.db import db_commands as db
 default_router = Router()
 
 
-GET_FEED = "get_feed"
-FEEDING = "to_feed"
-TRANSFER = "transfer_feed"
-NOT_ACCEPT_FEED = "not_accept_feed"
-ACCEPY_FEED = "accept_feed"
 URL = f'https://{site_url}' + '/telegram/{slug}/{call.from_user.id}/'
-PERSONAL_ACCOUNT = "personal_account"
-STATISTIC = "get_statistic"
-BALANCE = "feed_on_balance"
-TOTAL_AMOUNT: int = 0
-
-
-def is_valid_phone_number(phone_number: str) -> bool:
-    """Валидация ввода номера телефона вручную."""
-    pattern = re.compile(r"^\+?[1-9]\d{1,14}$")
-    return bool(pattern.match(phone_number))
 
 
 def ensure_plus_prefix(phone_number: str) -> str:
@@ -44,32 +27,6 @@ def ensure_plus_prefix(phone_number: str) -> str:
     if not phone_number.startswith("+"):
         return f"+{phone_number}"
     return phone_number
-
-
-async def check_in_base(message, phone_number):
-    user = await db.get_user_by_number(phone_number)
-    if user.phone_number:
-        await message.answer(
-            text=(
-                "Ура, такой пользователь с номером есть в "
-                "базе, ему отправлен запрос на приемку корма"
-            )
-        )
-        tg_id = user.id
-        if tg_id:
-            await bot.send_message(
-                chat_id=tg_id,
-                text="Вам отправлен запрос на приемку корма",
-                reply_markup=inline_kb.accept_or_not(),
-            )
-        else:
-            await message.answer(
-                text=f"Не удалось найти пользователя с id {tg_id}."
-            )
-    else:
-        await message.answer(
-            text="Пользователь с таким номером телефона не найден в базе."
-        )
 
 
 @default_router.callback_query(F.data == "back_main_menu")
@@ -135,7 +92,7 @@ async def command_help(message: types.Message):
     await message.answer("Для запуска или перезапуска бота напишите /start")
 
 
-@default_router.callback_query(F.data == GET_FEED)
+@default_router.callback_query(F.data == "get_feed")
 async def get_feed(call: types.CallbackQuery):
     """Получение корма."""
     await call.message.delete()
@@ -152,7 +109,7 @@ async def get_feed(call: types.CallbackQuery):
     )
 
 
-@default_router.callback_query(F.data == FEEDING)
+@default_router.callback_query(F.data == "to_feed")
 async def feeding(call: types.CallbackQuery):
     """Кормление."""
     await call.message.delete()
@@ -181,114 +138,6 @@ async def feeding(call: types.CallbackQuery):
 #     return message.answer('check', reply_markup=markup.as_markup())
 
 
-# @default_router.message(Command('transfer'))
-# async def feeding(message: types.Message):
-#     """Передача корма от волонтера к волонтеру."""
-#     markup = InlineKeyboardBuilder()
-#     markup.add(InlineKeyboardButton(text='transfer', web_app=WebAppInfo(
-#         url=URL.format(
-#             slug='transfer_report',
-#             message=message,))))
-#     return message.answer('transfer', reply_markup=markup.as_markup())
-
-
-# @default_router.message(StateUser.send_phone, F.contact)
-# async def check_contact_in_base(message: types.Message):
-#     """Проверка волонтера на наличие в базе, если слать контакт."""
-#     phone_number = ensure_plus_prefix(message.contact.phone_number)
-#     await check_in_base(message, phone_number)
-
-
-# @default_router.message(StateUser.send_phone, F.text)
-# async def check_text_phone_number_in_base(message: types.Message):
-#     """Проверка волонтера на наличие в базе при ручном вводе."""
-#     phone_number = message.text.strip()
-
-#     if not is_valid_phone_number(phone_number):
-#         await message.answer(
-#             text=(
-#                 "Пожалуйста, введите корректный "
-#                 "номер телефона по типу +79ХХХХХХХХХ."
-#             )
-#         )
-#         return
-#     await check_in_base(message, phone_number)
-
-
-# @default_router.callback_query(F.data == NOT_ACCEPT_FEED)
-# async def delete_acc_notacc_buttons(callback_query: types.CallbackQuery):
-#     """Отколонение запроса на передачу корма."""
-#     await callback_query.bot.send_message(
-#         chat_id=callback_query.from_user.id,
-#         text="Запрос отклонен",
-
-# @default_router.callback_query(F.data == TRANSFER)
-# async def transfer_from_volunteer_to_volunteer(
-#     call: types.CallbackQuery, state: FSMContext
-# ):
-#     """Передача корма от волонтера волонтеру."""
-#     await call.message.delete()
-#     await state.set_state(StateUser.send_phone)
-#     await call.bot.send_message(
-#         chat_id=call.from_user.id,
-#         text=(
-#             "Пожалуйста, выберите контакт из вашей "
-#             "телефонной книги и отправьте его сюда. "
-#             "Или введите номер вручную по типу +79ХХХХХХХХХ."
-#         ),
-#     )
-
-
-# @default_router.message(StateUser.send_phone, F.contact)
-# async def check_contact_in_base(message: types.Message):
-#     """Проверка волонтера на наличие в базе, если слать контакт."""
-#     phone_number = ensure_plus_prefix(message.contact.phone_number)
-#     await check_in_base(message, phone_number)
-
-
-# @default_router.message(StateUser.send_phone, F.text)
-# async def check_text_phone_number_in_base(message: types.Message):
-#     """Проверка волонтера на наличие в базе при ручном вводе."""
-#     phone_number = message.text.strip()
-
-#     if not is_valid_phone_number(phone_number):
-#         await message.answer(
-#             text=(
-#                 "Пожалуйста, введите корректный "
-#                 "номер телефона по типу +79ХХХХХХХХХ."
-#             )
-#         )
-#         return
-#     await check_in_base(message, phone_number)
-
-
-# @default_router.callback_query(F.data == NOT_ACCEPT_FEED)
-# async def delete_acc_notacc_buttons(call: types.CallbackQuery):
-#     """Отколонение запроса на передачу корма."""
-#     await call.bot.send_message(
-#         chat_id=call.from_user.id,
-#         text="Запрос отклонен",
-#     )
-#     await bot.edit_message_text(
-#         text=call.message.text,
-#         chat_id=call.from_user.id,
-#         message_id=call.message.message_id,
-#     )
-
-
-# @default_router.callback_query(F.data == ACCEPY_FEED)
-# async def accept_feed(call: types.CallbackQuery):
-#     """Принятие запроса на передачу корма."""
-#     await call.bot.send_message(
-#         chat_id=call.from_user.id,
-#         text="Здесь будет происходить передача корма",
-#     )
-#     await bot.edit_message_text(
-#         text=call.message.text,
-#         chat_id=call.from_user.id,
-#         message_id=call.message.message_id,
-#     )
-
 
 @default_router.message(Command("report"))
 async def command_otchet(message: types.Message):
@@ -306,21 +155,10 @@ async def command_otchet(message: types.Message):
     return message.answer('Привет', reply_markup=markup.as_markup())
 
 
-# @default_router.callback_query(F.data == PERSONAL_ACCOUNT)
-# async def personal_account(call: types.CallbackQuery):
-#     """Личный кабинет."""
-#     await call.message.delete()
-#     await call.bot.send_message(
-#         chat_id=call.from_user.id,
-#         text="Здесь будет личный кабинет.",
-#         reply_markup=inline_kb.back_main_menu(),
-#     )
-
-
 @default_router.callback_query(StateUser.statistics, F.data == "back_step")
-@default_router.callback_query(F.data == PERSONAL_ACCOUNT)
+@default_router.callback_query(F.data == "personal_account")
 async def personal_account(call: types.CallbackQuery):
-    """Личный кабинет"""
+    """Личный кабинет."""
     await call.message.delete()
     await bot.send_message(
         chat_id=call.from_user.id,
@@ -329,12 +167,12 @@ async def personal_account(call: types.CallbackQuery):
     )
 
 
-@default_router.callback_query(F.data == STATISTIC)
+@default_router.callback_query(F.data == 'get_statistic')
 async def get_statistic(call: types.CallbackQuery, state: FSMContext):
     """Статистика"""
     balance_feed = await db.get_user_statistic(call.from_user.id)
     feed_summary = {}
-    total_amount = TOTAL_AMOUNT
+    total_amount = 0
 
     for feed_amount in balance_feed:
         feed = feed_amount.feed.name
@@ -349,7 +187,8 @@ async def get_statistic(call: types.CallbackQuery, state: FSMContext):
     if not feed_summary:
         text = 'Статистика:\n\nЗа все время вы собрали: 0\n'
     else:
-        text = f'Статистика:\n\nЗа все время вы собрали: {total_amount} кг корма\n\n'
+        text = (f'Статистика:\n\nЗа все время вы собрали: '
+                f'{total_amount} кг корма\n\n')
         text += 'За этот месяц вами собрано:\n'
         for feed, amount in feed_summary.items():
             text += f'{feed} - {amount} кг\n'
@@ -364,7 +203,42 @@ async def get_statistic(call: types.CallbackQuery, state: FSMContext):
     )
 
 
-@default_router.callback_query(F.data == BALANCE)
+@default_router.callback_query(F.data.startswith('cancel_report_'))
+async def cancel_report(call: types.CallbackQuery):
+    """Отмена отчета о передаче корма"""
+    await call.message.delete()
+    id_report = call.data.split('cancel_report_')[1]
+    report = await db.get_transfer_report(id_report)
+    report.delete()
+    await call.bot.send_message(
+        chat_id=report.user.id,
+        text="Указанный вами волонтер отклонил заявку. Отчет аннулирован",
+    )
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
+        text="Отчет отклонен.",
+    )
+
+
+@default_router.callback_query(F.data.startswith('confirm_report_'))
+async def confirm_report(call: types.CallbackQuery):
+    """Подтверждение отчета о передаче корма"""
+    await call.message.delete()
+    id_report = call.data.split('confirm_report_')[1]
+    report = await db.get_transfer_report(id_report)
+    report.approval = True
+    await db.model_save(report)
+    await call.bot.send_message(
+        chat_id=report.user.id,
+        text="Указанный вами волонтер принял заявку. Отчет создан.",
+    )
+    await call.bot.send_message(
+        chat_id=call.from_user.id,
+        text="На ваш баланс добавлен новый корм.",
+    )
+
+
+@default_router.callback_query(F.data == 'feed_on_balance')
 async def get_balance(call: types.CallbackQuery, state: FSMContext):
     """Баланс пользователя."""
     balance_feed = await db.get_user_feed_amount(call.from_user.id)
