@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Bot, exceptions
 from aiogram.types import FSInputFile
 
-from tg_bot.config import bot_logger as logger
+from tg_bot.config import logger
 from tg_bot.db import db_commands as db
 
 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет о получении товара</title>
+    {% load static %}
+    <script src="{% static 'js/take_food_report.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'css/report.css' %}"/>
+</head>
+<body>
+    <div class="container">
+        <h2>Отчет о получении товара</h2>
+        <form id="report-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="trading_point">Выберите торговую точку:</label>
+                <select id="trading_point" name="trading_point" class="form-control" required>
+                    <option value="">-- Выберите адрес точки --</option>
+                    {% for point in points %}
+                        <option value="{{ point.id }}">{{ point.title }} ({{  point.address }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="menu">
+                {% for feed in feeds %}
+                    <div class="menu-item">
+                        <img src="{{ feed.image_url }}" alt="{{ feed.name }}">
+                        <p>{{ feed.name }} ({{ feed.unit_measure }})</p>
+                        <div class="quantity-controls">
+                            <button type="button" onclick="decreaseQuantity('feed_{{ feed.id }}')">-</button>
+                            <span id="feed_{{ feed.id }}_display">0</span>
+                            <button type="button" onclick="increaseQuantity('feed_{{ feed.id }}')">+</button>
+                        </div>
+                        <input type="hidden" id="feed_{{ feed.id }}_input" name="feed_{{ feed.id }}" value="0">
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="images">Добавить изображения:</label>
+                <input type="file" id="images" name="images" required multiple>
+            </div>
+            <div class="form-group">
+                <label for="name">Добавить комментарий:</label>
+                <input type="text" id="name" name="comment">
+            </div>
+            <div class="form-buttons">
+                <button type="submit">Сохранить отчет</button>
+            </div>
+        </form>
+        <div id="alert-message" style="display:none;color:red;">
+            Введите хотя бы один корм.
+        </div>
+    </div>
+</body>
+</html>

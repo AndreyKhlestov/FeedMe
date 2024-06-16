@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage, Redis
 
-from tg_bot.config import BOT_TOKEN, redis_host, redis_port, bot_logger
+from tg_bot.config import BOT_TOKEN, redis_host, redis_port, logger
 
 
 def setup_django():
@@ -23,7 +23,7 @@ def include_all_routers():
         dp.include_router(handler)
 
 
-bot_logger.info("Logger initialized")
+logger.info("Logger initialized")
 setup_django()
 bot = Bot(BOT_TOKEN, parse_mode='HTML')
 
