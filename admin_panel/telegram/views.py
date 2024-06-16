@@ -53,42 +53,117 @@ def statistics(request):
         'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
         'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
     ]
-
-    # Текущая дата
-    current_date = timezone.now()
-
-    # Получаем все торговые точки
-    trading_points = TradingPoint.objects.all()
-
+    # Получаем тип отчета из запроса
+    report_type = request.GET.get('report_type')
     # Создаем словарь для хранения данных
     data = []
-    for point in trading_points:
-        # Создаем словарь для каждой точки
-        point_data = {'title': point.title, 'data': []}
+    # Текущая дата
+    current_date = timezone.now()
+    name_column = ''
+    column_sums = [0] * 12  # Список для хранения сумм по столбцам
 
-        for month in range(1, current_date.month + 1):
-            # Получаем количество корма за каждый месяц
-            start_date = datetime(current_date.year, month, 1)
-            start_date = timezone.make_aware(start_date)
-            end_date = datetime(current_date.year, month + 1,
-                                1) if month < 12 else datetime(
-                current_date.year + 1, 1, 1)
-            end_date = timezone.make_aware(end_date)
+    if report_type == 'points':
+        name_column = 'Точка'
+        # Получаем все торговые точки
+        trading_points = TradingPoint.objects.all()
 
-            feed_amount = FeedAmount.objects.filter(
-                receiving_report__trading_point=point,
-                receiving_report__created__range=(start_date, end_date)
-            ).aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+        for point in trading_points:
+            # Создаем словарь для каждой точки
+            point_data = {'title': point.title, 'data': []}
 
-            # Добавляем данные в список
-            point_data['data'].append(feed_amount)
+            for month in range(1, current_date.month + 1):
+                # Получаем количество корма за каждый месяц
+                start_date = datetime(current_date.year, month, 1)
+                start_date = timezone.make_aware(start_date)
+                end_date = datetime(current_date.year, month + 1,
+                                    1) if month < 12 else datetime(
+                    current_date.year + 1, 1, 1)
+                end_date = timezone.make_aware(end_date)
 
-        data.append(point_data)
+                feed_amount = FeedAmount.objects.filter(
+                    receiving_report__trading_point=point,
+                    receiving_report__created__range=(start_date, end_date)
+                ).aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+
+                # Добавляем данные в список
+                point_data['data'].append(feed_amount)
+                # Обновляем сумму по столбцу
+                column_sums[month - 1] += feed_amount
+
+            data.append(point_data)
+
+    elif report_type == 'users':
+        name_column = 'Пользователи'
+
+        # Получаем все торговые точки
+        users = TgUser.objects.all()
+
+        for user in users:
+            # Создаем словарь для каждой точки
+            user_data = {'title': user.full_name, 'data': []}
+
+            for month in range(1, current_date.month + 1):
+                # Получаем количество корма за каждый месяц
+                start_date = datetime(datetime.now().year, month, 1)
+                start_date = timezone.make_aware(start_date)
+                end_date = datetime(datetime.now().year, month + 1,
+                                    1) if month < 12 else datetime(
+                    datetime.now().year + 1, 1, 1)
+                end_date = timezone.make_aware(end_date)
+
+                feed_amount = FeedAmount.objects.filter(
+                    delivery_report__user=user,
+                    delivery_report__created__range=(start_date, end_date)
+                ).aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+
+                # Добавляем данные в список
+                user_data['data'].append(feed_amount)
+                # Обновляем сумму по столбцу
+                column_sums[month - 1] += feed_amount
+
+            data.append(user_data)
+
+    elif report_type == 'feeds':
+        name_column = 'Корм'
+
+        # Получаем все торговые точки
+        feeds = Feed.objects.all()
+
+        for feed in feeds:
+            # Создаем словарь для каждой точки
+            feed_data = {'title': feed.name, 'data': []}
+
+            for month in range(1, current_date.month + 1):
+                # Получаем количество корма за каждый месяц
+                start_date = datetime(datetime.now().year, month, 1)
+                start_date = timezone.make_aware(start_date)
+                end_date = datetime(datetime.now().year, month + 1,
+                                    1) if month < 12 else datetime(
+                    datetime.now().year + 1, 1, 1)
+                end_date = timezone.make_aware(end_date)
+
+                feed_amount = FeedAmount.objects.filter(
+                    feed=feed,
+                    receiving_report__created__range=(start_date, end_date)
+                ).aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+
+                # Добавляем данные в список
+                feed_data['data'].append(feed_amount)
+                # Обновляем сумму по столбцу
+                column_sums[month - 1] += feed_amount
+            data.append(feed_data)
+
+    # добавляем суммарные данные
+    data.append(
+        {'title': 'Итого:', 'data': column_sums[:current_date.month]}
+    )
 
     # Ограничиваем список месяцев текущим месяцем
     months = months[:current_date.month]
 
     data = {
+        'name_column': name_column,
+        'report_type': report_type,
         'months': months,
         'data': data,
     }

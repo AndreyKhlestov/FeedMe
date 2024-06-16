@@ -4,36 +4,49 @@
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">Главная</a>
-› <a href="{% url 'admin:app_list' app_label='telegram' %}">админ панель</a>
-› Статистика
+    <a href="{% url 'admin:index' %}">Главная</a>
+    › <a href="{% url 'admin:app_list' app_label='telegram' %}">админ панель</a>
+    › Статистика
 </div>
 {% endblock %}
 
 
 {% block content %}
     <div class="app-report model-point module">
-        <h1>Статистика</h1>
-    
-        <table class="change-list" style="width: 100%;">
-              <thead>
-            <tr>
-                <th>Точка</th>
-                {% for month in months %}
-                <th>{{ month }}</th>
+        <form method="GET" action="{% url 'tg:statistics' %}">
+            <label for="report_type">Тип отчета:</label>
+            <select id="report_type" name="report_type">
+                <option value="" {% if not report_type %}selected{% endif %}>-- Выберите тип отчета --</option>
+                <option value="points" {% if report_type == 'points' %}selected{% endif %}>По точкам</option>
+                <option value="users" {% if report_type == 'users' %}selected{% endif %}>По волонтерам</option>
+                <option value="feeds" {% if report_type == 'feeds' %}selected{% endif %}>По кормам</option>
+            </select>
+            <button type="submit">Применить</button>
+        </form>
+        
+        {% if report_type %}
+            <h1>Статистика</h1>
+        
+            <table class="change-list" style="width: 100%;">
+                  <thead>
+                <tr>
+                    <th>{{ name_column }}</th>
+                    {% for month in months %}
+                    <th>{{ month }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for i_data in data %}
+                <tr>
+                    <td>{{ i_data.title }}</td>
+                    {% for amount in i_data.data %}
+                        <td>{{ amount }}</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for point_data in data %}
-            <tr>
-                <td>{{ point_data.title }}</td>
-                {% for amount in point_data.data %}
-                <td>{{ amount }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-        </table>
+            </tbody>
+            </table>
+        {% endif %}
     </div>
 {% endblock %}
